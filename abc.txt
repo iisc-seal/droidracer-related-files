@@ -1,4 +1,0 @@
-org.tomdroid
-Lorg/tomdroid/
-7
-0
