@@ -1,0 +1,6 @@
+org.geometerplus.zlibrary.ui.android
+Lorg/geometerplus/android/fbreader/
+org.geometerplus.android.fbreader.FBReader
+3
+30
+9997

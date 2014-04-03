@@ -1,0 +1,15 @@
+Before running FBReader, open FBReader -> Click No-Tip option on dialog box displayed
+
+**to reproduce this using DroidRacer start this app with DroidRacer after initializing
+it by clicking on No-Tip option. Allow DroidRacer to do 5 runs on this app. The result 
+reported is for the 5th run. In abc.sh 12,13,14,15 and uncomment line 11. 
+This prevents clearing all data under /data/data/<app-package> and thus does not 
+start testing from scratch across runs. 
+
+this is what happens in 5th run if you wanyt to manually reproduce:
+Clcik Menu -> Click Night option and exit FBReader
+Reopen FBReader.
+
+event 1: Click Menu
+event 2: Click Day
+event 3: Click top right corner options menu button

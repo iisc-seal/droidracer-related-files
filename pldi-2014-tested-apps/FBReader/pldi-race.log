@@ -1,0 +1,27 @@
+traceTime: 750 s raceTime: 11 s #trace: 11175  #thread: 15  #mq: 1  #async: 109  #event-depth: 3  #field: 321  #multi-thread-races: 1  #asyncRaces: 15  #delay-races: 0  #cross-post-races: 25  #co-enabled-uiRaces: 0  co-enabled-non-ui-races: 14
+
+traceTime: 705 s raceTime: 9 s #trace: 10487  #thread: 14  #mq: 1  #async: 110  #event-depth: 3  #field: 304  #multi-thread-races: 1  #asyncRaces: 12  #delay-races: 0  #cross-post-races: 22  #co-enabled-uiRaces: 0  co-enabled-non-ui-races: 13
+
+traceTime: 732 s raceTime: 12 s #trace: 12253  #thread: 16  #mq: 1  #async: 116  #event-depth: 3  #field: 323  #multi-thread-races: 1  #asyncRaces: 13  #delay-races: 20  #cross-post-races: 22  #co-enabled-uiRaces: 0  co-enabled-non-ui-races: 14
+
+traceTime: 713 s raceTime: 11 s #trace: 10768  #thread: 14  #mq: 1  #async: 119  #event-depth: 3  #field: 322  #multi-thread-races: 1  #asyncRaces: 13  #delay-races: 0  #cross-post-races: 22  #co-enabled-uiRaces: 0  co-enabled-non-ui-races: 14
+
+traceTime: 716 s raceTime: 12 s #trace: 10723  #thread: 14  #mq: 1  #async: 119  #event-depth: 3  #field: 322  #multi-thread-races: 1  #asyncRaces: 13  #delay-races: 0  #cross-post-races: 22  #co-enabled-uiRaces: 0  co-enabled-non-ui-races: 14
+
+
+#traces collected:  5
+avg. trace generation time (sec):  723
+avg. race detection time (sec):  11
+avg. trace length:  11082
+avg. thread count:  15
+avg. threads with MQ:  1
+avg. async-blocks count:  115
+avg. event sequence depth:  3
+avg. app fields:  319
+total no. of multi-threaded races detected:  1
+total no. of async races detected:  14
+total no. of delay-post races detected:  4
+total no. of cross-post races detected:  23
+total no. of co-enabled UI widget races detected:  0
+total no. of co-enabled non-UI widget races detected:  14
+

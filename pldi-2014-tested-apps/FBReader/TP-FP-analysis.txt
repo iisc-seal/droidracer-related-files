@@ -1,0 +1,84 @@
+Multithreaded races
+class: Lorg/geometerplus/android/fbreader/config/ConfigShadow;  field:28
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+class: Lcom/android/internal/view/menu/MenuItemImpl;  field:88
+->1. TRUE-POSITIVE: 4043, 4929    field: mFlags
+     both are accessed inside MenuItemImpl.setVisibleInt() called from
+     FBReader.run() defined inside refresh() method.
+     4043: accessed in msg:26 posted by msg:16 on tid:1 which in turn is
+     posted by tid:8 from ZLAndroidWidget.repaint(). This thread is forked due to
+     BookCollectionShadow.onServiceConnected()
+     4929: accessed in msg:34 posted by msg:31 posted by tid:8, a timer thread 
+     created in ZLApplication.startTimer() due to LAUNCH of FBReader
+
+->2. TRUE-POSITIVE: 3694, 4465 same reason as above. way to reproduce is same as above
+
+->3. TRUE-POSITIVE: 3770, 4541 same reason as above. way to reproduce is same as 1.
+
+->4. TRUE-POSITIVE: 4072, 4958 same reason as above. way to reproduce is same as 1.
+
+->5. TRUE-POSITIVE: 3885, 4665 same reason as above. way to reproduce is same as 1.
+
+->6. TRUE-POSITIVE: 3519, 4299 same reason as above. way to reproduce is same as 1.
+
+->7. TRUE-POSITIVE: 3575, 4346 same reason as above. way to reproduce is same as 1.
+
+->8. TRUE-POSITIVE: 3805, 4583 same reason as above. way to reproduce is same as 1.
+
+->9. TRUE-POSITIVE: 3899, 4711 same reason as above. way to reproduce is same as 1.
+
+->10. TRUE-POSITIVE: 3729, 4500 same reason as above. way to reproduce is same as 1.
+
+->11. TRUE-POSITIVE: 4245, 5198 same reason as above. way to reproduce is same as 1.
+
+->12. TRUE-POSITIVE: 4101, 4987 same reason as above. way to reproduce is same as 1.
+
+->13. TRUE-POSITIVE: 4164, 5052 same reason as above. way to reproduce is same as 1.
+
+->14. TRUE-POSITIVE: 4204, 5097 same reason as above. way to reproduce is same as 1.
+
+->15. TRUE-POSITIVE: 3627, 4398 same reason as above. way to reproduce is same as 1.
+
+->16. TRUE-POSITIVE: 4136, 5020 same reason as above. way to reproduce is same as 1.
+
+->17. TRUE-POSITIVE: 3945, 4762 same reason as above. way to reproduce is same as 1.
+
+->18. TRUE-POSITIVE: 3973, 4844 same reason as above. way to reproduce is same as 1.
+
+->19. TRUE-POSITIVE: 4005, 4879 same reason as above. way to reproduce is same as 1.
+
+->20. TRUE-POSITIVE: 3659, 4430 same reason as above. way to reproduce is same as 1.
+
+class: Lorg/geometerplus/android/fbreader/FBReader;  field:256
+class: Lorg/geometerplus/android/fbreader/config/ConfigShadow;  field:28
+
+Races due to co-enabled events
+
+object: 0x4109ec98  field:28 co-enabled trigger opIds:84, 103
+
+object: 0x4109f048  field:8 co-enabled trigger opIds:84, 103
+->1. FALSE-POSITIVE: 16, 831. same reason as ID-6 of co-enabled event races in old tp-fp-analysis
+
+object: 0x4109f048  field:16 co-enabled trigger opIds:84, 103
+->1. FALSE-POSITIVE: 14, 829. same reason as ID-6 of co-enabled event races in old tp-fp-analysis
+
+object: 0x410a4660  field:20 co-enabled trigger opIds:541, 232
+object: 0x410a4660  field:32 co-enabled trigger opIds:541, 232
+object: 0x410a6010  field:228 co-enabled trigger opIds:103, 84
+object: 0x410a6010  field:256 co-enabled trigger opIds:232, 188
+object: 0x410a6010  field:260 co-enabled trigger opIds:103, 84
+object: 0x410a6010  field:264 co-enabled trigger opIds:103, 84
+object: 0x410a70f8  field:72 co-enabled trigger opIds:103, 823
+object: 0x410caf48  field:12 co-enabled trigger opIds:161, 103
+object: 0x410caf48  field:16 co-enabled trigger opIds:103, 161
+
+object: 0x410cb130  field:8 co-enabled trigger opIds:84, 103
+->1. FALSE-POSITIVE: 684, 1239. same reason as ID-6 of co-enabled event races in old tp-fp-analysis
+
+object: 0x410cb130  field:16 co-enabled trigger opIds:84, 103
+->1. FALSE-POSITIVE: 682, 1237. same reason as ID-6 of co-enabled event races in old tp-fp-analysis

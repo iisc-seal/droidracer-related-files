@@ -1,0 +1,4 @@
+to reproduce this run, initialize the Facebook app
+by entering login credentials and clicking on Skip button later.
+Force quit the app and start DroidRacer run.
+Also, truncate the trace to 2300 mark.

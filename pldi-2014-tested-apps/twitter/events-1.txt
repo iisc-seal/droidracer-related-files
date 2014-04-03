@@ -1,0 +1,6 @@
+install twitter. Initialize by entering your login
+credentials and later clicking on Dont-Allow button
+in the popup window. Force close twitter. Start it 
+with DroidRacer.
+
+event 1: click on Search button

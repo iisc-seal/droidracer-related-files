@@ -1,0 +1,8 @@
+install flipkart app. Start the app and click on
+skip button when asked for credentials. Click
+OK on any popup window that is shown; wait for
+contents to load. Click anywhere on the screen 
+when it gets blurred with a layer with some guidance.
+Force close the app and restart it with DroidRacer
+
+event 1: Click OK on popup window

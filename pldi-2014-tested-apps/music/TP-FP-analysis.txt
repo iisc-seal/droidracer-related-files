@@ -1,0 +1,81 @@
+Races due to a delayed post in ancestor asyncblocks
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:112
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:128
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:132
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:136
+
+Races due to cross thread post in ancestor asyncblocks
+class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:24
+class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:36
+class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:44
+class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:136
+class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:140
+class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:144
+class: Lcom/android/music/TouchInterceptor;  field:24
+class: Lcom/android/music/TouchInterceptor;  field:248
+class: Lcom/android/music/TouchInterceptor;  field:360
+class: Lcom/android/music/TouchInterceptor;  field:488
+class: Lcom/android/music/TouchInterceptor;  field:584
+class: Lcom/android/music/TouchInterceptor;  field:596
+class: Lcom/android/music/TouchInterceptor;  field:604
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:112
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:128
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:132
+class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:136
+
+Races due to co-enabled events
+class: Landroid/widget/LinearLayout;  field:360 co-enabled trigger opIds:295, 303
+TRUE-POSITIVE: 1798, 1904    field:View.mViewFlags
+the events involved are onServiceConnected and onReceive and reproduced
+
+class: Lcom/android/music/MusicUtils$ServiceBinder;  field:476 co-enabled trigger opIds:303, 488
+TRUE-POSITIVE: 1875, 3393       field:sService
+access methods and techniques same as below race. but since no check is involved
+for this race it is true positive
+
+class: Lcom/android/music/MusicUtils;  field:463 co-enabled trigger opIds:488, 303
+FALSE-POSITIVE: 1884, 3398  field:sArtCache
+both are due to onServiceConnected() of MediaPlaybackService, but with different connection onject
+access happens inside MusicUtils.initAlbumArtCache(). the other ordering does not result in write
+due to a logical check.
+
+class: Lcom/android/music/TouchInterceptor;  field:244 co-enabled trigger opIds:295, 375
+TRUE-POSITIVE: 1785, 2189       field:mLastIsOpaque    . benign
+the order of 295 (onReceive for com.android.music.queuechanged and click event
+on an album in Album view can be interchanged). and the accesses can also happen in opp. order
+
+class: Lcom/android/music/TouchInterceptor;  field:248 co-enabled trigger opIds:295, 375
+TRUE-POSITIVE : way to reproduce is same as above.   field: mPrivateFlags
+
+class: Lcom/android/music/TouchInterceptor;  field:488 co-enabled trigger opIds:295, 375
+TRUE-POSITIVE : check 23 on page 80 for detailed explanation.   field: mChildCount
+
+class: Lcom/android/music/TouchInterceptor;  field:516 co-enabled trigger opIds:295, 375
+TRUE-POSITIVE : check 22 on page 80 for detailed explanation.   field: mFirstPosition
+
+class: Lcom/android/music/TouchInterceptor;  field:572 co-enabled trigger opIds:375, 295
+TRUE-POSITIVE : check 21 on page 79 (behind it) for detailed explanation.   field: mNeedSync
+
+class: Lcom/android/music/TouchInterceptor;  field:584 co-enabled trigger opIds:375, 295
+TRUE-POSITIVE : check 20 on page 79 (behind it) for detailed explanation.   field: mDataChanged
+
+class: Lcom/android/music/TouchInterceptor;  field:588 co-enabled trigger opIds:295, 375
+TRUE-POSITIVE : check 25 on page 80 for detailed explanation.   field: mSelectedPosition
+
+class: Lcom/android/music/TouchInterceptor;  field:596 co-enabled trigger opIds:295, 375
+TRUE-POSITIVE : check 24 on page 80 for detailed explanation    field: mBlockLayoutRequests
+
+Uncategorized races
+1. class: Lcom/android/music/TouchInterceptor;  field:248
+TRUE-POSITIVE: 3455, 4065  field:mPrivateFlags
+3455: accessed in View.invalidateView() called inside async block for onServiceConnected()
+of MediaPlaybackService after clicking om an album in AlbumBrowser view. The bind requested
+for this service is sent from LAUNCH of TrackBrowserActivity
+
+2. class: Lcom/android/music/TouchInterceptor;  field:252
+FALSE-POSITIVE: 3527, 4078   field: View.mPrivateFlags2
+reason is same as above but write does not happen in opposite order
+
+3. class: Lcom/android/music/TouchInterceptor;  field:360
+TRUE-POSITIVE: 3484, 4059    field: View.mViewFlags
+reason is same as ID-1 in this category

@@ -1,0 +1,40 @@
+Multithreaded races
+-------------------
+1. class: Laarddict/android/LookupActivity;  field:220
+   TRUE POSITIVE : a race due to accessing the field dictionaryService of
+   LookupActivityClass by onServiceConnected of BaseDictionaryService class
+   performed by main thread and doLookup() (of LookupActivity class)
+   called inside a run() executed by Timer thread (tid: 10).. this race was reproduced. 
+   accessId : 546, 565
+
+
+interesting race reported before fixing Timer class problem
+-----------------------------------------------------------
+class: Landroid/widget/EditText;  field:420  fieldname: mText
+   FALSE POSITIVE : Inside LAUNCH-ACTIVITY of LookupActivity class Timer gets instantiated and eventually
+   afterTextChanged() gets called which schedules a TimerTask on Timer thread (tid:10) with a delay. This
+   task calls getText() but even before this task is run the write to mText happens and hence there is no 
+   race.
+
+** interesting: this is an example of invalid UI object access 
+   (non-UI thread performs read calling getText) 
+
+
+Some notes on Aarddict User experience problem:
+
+-> Launching Aarddict opens LoopupActivity which in turn calls onCreate of its 
+super (BaseDictionaryActivity). Its onCreate registers a receiver to receive 
+progress of loading dictionary, it initializes UI by calling LookupActivity.initUI 
+which calls editText.setInputType. This is a library call which results in a dummy 
+setText which triggers all listeners attached to it and also schedules a TimerTask
+to perform lookup for the word enteres in dictionary. But at this point since no
+dictionary is loaded doLoopup() returns (it is crash free as there is a check on
+dictionaryService before doing anything) ... BaseDictionaryActivity then starts a Service
+and also binds to it. The resulting onServiceConnected calls onDictionaryServiceConnected()
+which starts a background thread to load dictionary if some dictionary have been loaded prior
+or to go to DictionaryActivity to scan for dictionaries. We could set a breakpoint inside this 
+thread delaying it and then type out texts provided in entry activity...and user gets no
+response or feedback as the dictionary is not yet loaded...also the user does not get to 
+know about this too.   <this is a little exaggerated and can happen only if you block the
+thread that is supposed to load dictionary). Once the thread starts loading dict it shows a 
+progressbar window removing focus from the screen behind .

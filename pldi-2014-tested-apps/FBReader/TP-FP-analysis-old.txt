@@ -1,0 +1,107 @@
+Multithreaded races
+1. class: Lorg/geometerplus/android/fbreader/config/ConfigShadow;  field:28
+   FALSE-POSITIVE: covering race on cross post ID-6 prevents the involved
+   thread to be spawned in the opposite order
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+1. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:88
+   FALSE-POSITIVE: this cant be reproduced
+
+Races due to cross thread post in ancestor asyncblocks
+1. class: Ljava/util/HashMap;  field:20
+   FALSE-POSITIVE: 1921, 8174  . untracked binder thread
+
+2. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:88
+   FALSE-POSITIVE: 2625, 8884. untracked binder thread
+
+3. class: Lorg/geometerplus/android/fbreader/FBReader;  field:228
+   FALSE-POSITIVE: 385, 8193
+   8193 is a successor of untracked binder post
+
+4. class: Lorg/geometerplus/android/fbreader/FBReader;  field:256
+   TRUE-POSITIVE: 1336, 5321 .  field: FBReader.myBatteryLevel. benign
+   1336: tid:1 sets battery level to current battery level inside 
+   FBReader.setBatteryLevel() due to onReceive() for batterylevel 
+   defined in FBReader.java. The registering for this broadcast happens 
+   in FBReader's LAUNCH_ACT
+   5321: tid:1 reads myBatteryLevel using getBatteryLevel() in
+   msg:37 posted by tid:1 msg:34 posted by tid:1 msg:31 posted 
+   by tid:8 running periodic TIMER_TASK. tid:8 is forked from tid:1
+   in msg:14 posted by tid:1 msg:9 posted by the same LAUNCH_ACT
+
+   even though battery level read will be 0 before setting the program does
+   not take any action till it becomes non zero..it seems to poll continuosly
+ 
+5. class: Lorg/geometerplus/android/fbreader/FBReader;  field:268
+   FALSE-POSITIVE: 719, 8165  untracked binder thead
+
+6. class: Lorg/geometerplus/android/fbreader/config/ConfigShadow;  field:28
+   TRUE-POSITIVE: 818, 3536. field:myInterface
+   in the opposite run the race is not due to 3536 but a
+   covering race before that..our tool is configured to print  only one race even
+   though it detects all in trace..
+
+Races due to co-enabled events
+
+1. class: Ljava/util/LinkedList;  field:8 co-enabled trigger opIds:84, 103
+   FALSE-POSITIVE: 684, 1247. same reason as ID-6 in this category
+
+2. class: Ljava/util/LinkedList;  field:16 co-enabled trigger opIds:84, 103
+   FALSE-POSITIVE: 682, 1245. same reason as ID-6 in this category
+
+3. class: Landroid/view/WindowManager$LayoutParams;  field:72 co-enabled trigger opIds:103, 849
+   TRUE-POSITIVE: 1226, 12531. field: buttonBrightness
+   both the operations are writes performed due to FbReader.setButtonLight()
+   1226 - accessed by a runnable invoked from onServiceConnected of 
+   service org.geometerplus.android.fbreader.config.ConfigServic service
+   12531: accessed due to FBReader.onPause()
+
+4. class: Lorg/geometerplus/android/fbreader/FBReader;  field:228 co-enabled trigger opIds:103, 84
+   FALSE-POSITIVE: FALSE-POSITIVE. same reason as ID-6 in this category
+
+5. class: Lorg/geometerplus/android/fbreader/FBReader;  field:256 co-enabled trigger opIds:232, 188
+   TRUE-POSITIVE: 1336, 2733 . field: FBReader.myBatteryLevel. benign
+   1336: tid:1 sets battery level to current battery level inside 
+   FBReader.setBatteryLevel() due to onReceive() for batterylevel 
+   defined in FBReader.java.
+   2733: reads myBatteryLevel using getBatteryLevel() in onWindowFocus. these two events are unrelated
+   and opposite order reproduced
+   **even though this race is benign changing the order of these due to BACK press causes 
+   BadTokenException due to Activity to which a Progress dialog to be attached being destroed.
+   This leads to runtime crash.
+   FBReader's onStart queues a runnable to openBook in myDeferredActions of ConfigShadow class.
+   This runnable is executed by the onServiceConected() of this class and this runnable 
+   spawns a thread which later on leads to opening of book and thus a progress bar being shown.
+
+6. class: Lorg/geometerplus/android/fbreader/FBReader;  field:260 co-enabled trigger opIds:103, 84
+   FALSE-POSITIVE: 39, 1081.  field: myShowActionBarFlag
+   39 happens inside LAUNCH_ACT of FBReader and 1081 is accessed inside queue of run() methods 
+   executed by onServiceConnected() of ConfigShadow class for service org.geometerplus.android.fbreader.config.ConfigService
+   Its observed that the queue is empty if onServiceConnected happens before LAUNCH_ACT
+
+7. class: Lorg/geometerplus/android/fbreader/FBReader;  field:264 co-enabled trigger opIds:103, 84
+   FALSE-POSITIVE: 28, 1079. same reason as above
+
+8. class: Lorg/geometerplus/android/fbreader/config/ConfigShadow;  field:28 co-enabled trigger opIds:84, 103
+   TRUE-POSITIVE: 9, 818 . field: ConfigShadow.myInterface . benign
+   9: read inside ConfigShadow.runOnStart() called from FBReader.onCreate()
+   818: myInterface initialized in onServiceConnected() of ConfigShadow
+
+9. class: Lorg/geometerplus/android/fbreader/libraryService/BookCollectionShadow;  field:12 co-enabled trigger opIds:161, 103
+   FALSE-POSITIVE: 1250, 1319  field: BookCollectionShadow.myContext
+   even though onServiceConnected corresponding to these two events can be triggered in 
+   any order, these control locations are not hit in opposite order.
+
+10. class: Lorg/geometerplus/android/fbreader/libraryService/BookCollectionShadow;  field:16 co-enabled trigger opIds:103, 161
+    TRUE-POSITIVE: 1239, 1253  field: BookCollectionShadow.myInterface
+    1239: accessed inside bindToService of BookCollectionShadow class accessed from onServiceConnected()
+    of ConfigShadow class
+    1253: accessed inside BookCollectionShadow.onServiceConnected()
+
+11. class: Lorg/geometerplus/zlibrary/core/options/ZLIntegerRangeOption;  field:20 co-enabled trigger opIds:539, 232
+    FALSE-POSITIVE: missing window focus lifecycle connections    
+
+12. class: Lorg/geometerplus/zlibrary/core/options/ZLIntegerRangeOption;  field:32 co-enabled trigger opIds:539, 232
+    FALSE-POSITIVE: missing window focus lifecycle connections    

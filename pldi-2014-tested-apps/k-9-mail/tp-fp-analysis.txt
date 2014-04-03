@@ -1,0 +1,20 @@
+Multithreaded races
+class: Ljava/util/concurrent/PriorityBlockingQueue;  field:32
+class: Lcom/fsck/k9/provider/EmailProvider$2;  field:8   (False-positive: memory location reused)
+class: Lcom/fsck/k9/provider/EmailProvider$2;  field:12  (False-positive: memory location reused)
+class: Lcom/fsck/k9/provider/EmailProvider$2;  field:16  (False-positive: memory location reused)
+class: Lcom/fsck/k9/search/LocalSearch;  field:8         (False-positive: memory location reused)
+class: Lcom/fsck/k9/search/LocalSearch;  field:16        (False-positive: memory location reused)
+class: Lcom/fsck/k9/search/LocalSearch;  field:24        (False-positive: memory location reused)
+class: Lcom/fsck/k9/service/MailService;  field:8195
+class: Lcom/fsck/k9/service/MailService;  field:8196
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+
+Races due to co-enabled events  
+
+class: Lcom/fsck/k9/service/MailService;  field:8197 co-enabled trigger opIds:1159, 319

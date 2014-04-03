@@ -1,0 +1,52 @@
+Application (loc)  trace-length  Fields    Threads(w/o queue)   Threads (w /Q)   Asynctasks     app-description (taken from the apps google play)
+--------------------------------------------------------------------------------------------------------------------------------------------------
+AardDict(4044)      1355         189       2                    1                58             Simple dictionary and offline Wikipedia reader
+Browser (30874)     19062        963       13                   4                103            Default browser on Android emulator
+Messenger (27593)   10106        845       11                   4                99             Default messaging app on Android emulator
+Music (11012)       5532         521       3                    2                62             Default music player app on Android emulator
+Tomdroid (3215)     10120        413       3                    1                348            Android app version of Tomboy notes
+FBReader (50042)    10723        322       14                   1                119            e-book reader
+My Tracks (26146)   7305         573       11                   7                164            GPS based path tracking app
+OpenSudoku (6151)   24901        334       5                    1                45             A multi-player sudoku game
+SGTPuzzles (2368)   38864        566       4                    1                80             A collection of one-player games
+K-9 Mail (54119)    29662        1296      7                    2                689            e-mail client 
+Facebook            52146        801       16                   3                16                 
+Twitter             16975        1362      21                   5                97                                  
+Adobe Reader        33866        1267      17                   4                226
+Remind Me           10348        348       3                    1                176            reminder/alarm application
+Flipkart            157539       2065      36                   3                105
+
+
+Races reported by droidRacer
+----------------------------
+
+Application        multi-threaded       cross-post   co-enabled      delayed   Uncategorized
+---------------------------------------------------------------------------------------------      
+Aard Dictionary    1 (1/1)              0            0               0         
+Browser            2 (1/2)              64 (2/64)    0               0       
+Messenger          1 (1/1)              15 (5/15)    4 (3/4)         2 (2/2)         
+Music              0                    17 (4/17)    11 (10/11)      4 (0/4)    3 (2/3)  
+Tomdroid           0                    5 (2/5)      1 (0/1)         0  
+FBReader           1 (0/1)              22 (22/22)   14 (4/14)       0 
+My Tracks          1 (0/1)              2 (1/2)      1 (0/1)         0
+OpenSudoku         1 (0/1)              1 (0/1)      0               0
+SGTPuzzles         11 (10/11)           21 (8/21)    0               0
+K-9 Mail           9 (2/9)              0            1 (0/1)         0
+                  ----------------------------------------------------------------------
+                   27 (15)              147 (44)     32 (17)         6 (2)       3 (2)   total:215 (80)
+----------------------------------------------------------------------------------------         
+Facebbok           12                   10           0               0             
+Twitter            0                    20           7               4        
+Adobe Reader       34                   73           0               9           9
+Remind Me          0                    21           33              0
+Flipkart           12                   152          84              30          36
+                  ----------------------------------------------------------------------
+                   58                   276          124             43          45      total:546
+----------------------------------------------------------------------------------------
+
+
+***a race is reported as True Positive only if reproduced manually
+
+precision: 37.03%  (out of 216 reported for open source apps 80 are true positive)
+
+loc: reported without counting white space and comments

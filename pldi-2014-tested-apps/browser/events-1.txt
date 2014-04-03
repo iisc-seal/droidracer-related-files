@@ -1,0 +1,7 @@
+This is the default browser app available on emulator for 4.0.1.
+Do not do any intialization. Start Browser directly with DroidRacer.
+
+**even before first event is triggered trace generation stops due to 
+a lock issue. This happens only when a particular path is taken in
+SQLiteOpenHelper.getWriteableDatabase() . But the truncated trace obtained is
+sufficiently complex.

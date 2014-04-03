@@ -1,0 +1,36 @@
+Multithreaded races
+-------------------
+1. database path: /data/data/org.tomdroid/databases/tomdroid-notes.db  
+   FALSE-POSITIVE : tid: 11 is writing to database from Runnable SdcardSyncService$Worker
+   and tid:1 reads from database inside handleMessage of ViewNote$1 .. also their 
+   rwIds are close by (7420 (tid:1), 7360 (tid:11)) and reordering more probable..
+   Event sequence for reproduction: 
+   (1)Click OK on the first dialog that appears 
+   (2)Click on a Note
+   (3)Click on sync button
+
+   methods of interest: set breakpoint at Worker$run inside SdCardSyncService class
+   (will be accessed by tid:11) and ViewNote's handleMessge() at showNote (will be
+   accessed by tid:1).
+
+   *Was able to reproduce database access in the other order but looks like the row read
+    and rows inserted may be different. The note to be viewed in read and the sync button
+    click adds new notes read from Download folder..
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+------------------------------------------------------
+1. class: Lorg/tomdroid/ui/Actionbar;  field:248  field-name:mPrivateFlags
+   TRUE POSITIVE : both accesses are posted by two different threads and is similar to
+   a reproduced pattern. (accesses: 7286, 7809)
+   **Reproduced by clicking Sync button before clicking on a note.
+
+   type: benign
+
+Races due to co-enabled events
+
+
+Uncategorized races

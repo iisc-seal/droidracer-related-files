@@ -1,0 +1,5 @@
+start opensudoku and click on the initial dialog box.
+this is the initialization. now force-close opensudoku
+and start droidRacer.
+
+event 1: click on the first list item

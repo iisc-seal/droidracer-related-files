@@ -1,0 +1,6 @@
+com.android.browser
+Lcom/android/browser/
+com.android.browser.BrowserActivity
+2
+0
+9997

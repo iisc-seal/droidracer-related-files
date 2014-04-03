@@ -1,0 +1,53 @@
+Multithreaded races
+class: Lcom/android/mms/data/Contact;  field:28
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+1. class: Lcom/android/mms/ui/ComposeMessageActivity;  field:252
+2. class: Lcom/android/mms/ui/RecipientsEditor;  field:420
+   TRUE-POSITIVE: reason same as cross post ID-5.  field:TextView.mText
+
+Races due to cross thread post in ancestor asyncblocks
+1. class: Landroid/widget/ImageButton;  field:360
+   FALSE-POSITIVE: 7786, 9482  . custom queue
+
+2. class: Landroid/widget/TextView;  field:360
+   FALSE-POSITIVE: 7796, 9494  . custom queue
+
+3. class: Lcom/android/mms/data/WorkingMessage;  field:12
+4. class: Lcom/android/mms/data/WorkingMessage;  field:44
+5. class: Lcom/android/mms/ui/ComposeMessageActivity;  field:252
+   TRUE-POSITIVE: 7074, 8636  field:mDebugRecipients . benign
+   7074: accessed inside ComposeMessageActivity.updateTitle() from
+   a delayed runnable posted from ComposeMessageActivity.onResume()
+   8636: accessed inside ComposeMessageActivity.updateTitle() from
+   a runnable posted by a thread executing custom queue (tid:8)
+   from ComposeMessageActivity.onUpdate()
+   **reproduced by increasing the delay to 25000.
+   click on new message and quickly type in contacts text box and 
+   the textbox below the compose message screen.
+   **even though this involves cross post the basic reason is delayed post
+
+6. class: Lcom/android/mms/ui/ComposeMessageActivity;  field:356
+   FALSE-POSITIVE: for 7514, 8693 field: mPossiblePendingNotification
+   but there are cases where this is TP
+
+7. class: Lcom/android/mms/ui/ConversationListAdapter;  field:24
+8. class: Lcom/android/mms/ui/ConversationListAdapter;  field:36
+9. class: Lcom/android/mms/ui/ConversationListAdapter;  field:44
+10. class: Lcom/android/mms/ui/RecipientsEditor$1;  field:8
+11. class: Lcom/android/mms/ui/RecipientsEditor;  field:248
+12. class: Lcom/android/mms/ui/RecipientsEditor;  field:420
+13. class: Lcom/android/mms/ui/RecipientsEditor;  field:520
+14. class: Lcom/android/mms/ui/RecipientsEditor;  field:580
+15. class: Lcom/android/mms/ui/RecipientsEditor;  field:720
+
+Races due to co-enabled events
+class: Landroid/widget/ImageButton;  field:360 co-enabled trigger opIds:679, 731
+class: Landroid/widget/TextView;  field:360 co-enabled trigger opIds:679, 731
+
+class: Lcom/android/mms/data/WorkingMessage;  field:24 co-enabled trigger opIds:679, 731
+class: Lcom/android/mms/data/WorkingMessage;  field:44 co-enabled trigger opIds:731, 679
+
+Uncategorized races

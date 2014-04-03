@@ -1,0 +1,11 @@
+* even though the tool tracks database read-writes we do
+  not report it i.e DB races are filtered from reported races.
+  this is because, SQLite databases are inherently protected by 
+  locks in some modes.
+* even though the tool can track array accesses we have commented
+  code related to this. It can be uncommented in /dalvik/vm/mterp/c/opcommon.cpp
+  by searching AGET and APUT and uncommenting codeblock demarcated by
+  /*Android bug-checker*/. After doing this run ./rebuild.sh in /dalvik/vm/mterp/c folder.
+  run make again.
+  -> we only observed array accesses for dynamically generated arrays for switch case
+  startements and hence stopped tracking it for these apps. 

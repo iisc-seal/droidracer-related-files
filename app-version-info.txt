@@ -1,0 +1,39 @@
+Application       Version-name  Version-code    Source code url
+-----------------------------------------------------------------------------
+Aard Dictionary   1.4.1         13              https://github.com/aarddict/android    
+   
+Music Player      (1)           --              (2)
+
+My Tracks         2.0.6         74              http://code.google.com/p/mytracks/
+
+Messenger         (1)           --              (2)
+
+Tomdroid Notes    0.4.1         6               https://code.launchpad.net/tomdroid
+
+FBReader          1.9.6.1       1090621         http://fbreader.org/FBReaderJ
+
+Browser           (1)           --              (2)
+
+OpenSudoku        1.1.5         1105            https://code.google.com/p/opensudoku-android/
+    
+K-9 Mail          4.803         20004           http://code.google.com/p/k9mail/
+
+SGTPuzzles        9561.1        72              https://github.com/chrisboyle/sgtpuzzles
+----------------------------------------------------------------------------------------------
+Remind Me         2.0           6               proprietary app
+Twitter           4.1.10        1000440         proprietary app
+Adobe Reader      --            77969           proprietary app
+Facebook          1.9.10        48315           proprietary app
+Flipkart          2.4.1         29              proprietary app
+
+
+(1) This is an app from Android Open Source Project. Use the app available
+on emulator for android-4.0.1_r1
+
+(2) https://source.android.com/  - download android source corresponding to 
+version android-4.0.1_r1
+
+*To verify that you have got the app for the right version check the 
+version code and version name fields in the app's AndroidManifest.xml file
+
+

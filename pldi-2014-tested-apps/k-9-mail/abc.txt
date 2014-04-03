@@ -1,0 +1,6 @@
+com.fsck.k9
+Lcom/fsck/k9/
+com.fsck.k9.activity.Accounts
+1
+5
+9997

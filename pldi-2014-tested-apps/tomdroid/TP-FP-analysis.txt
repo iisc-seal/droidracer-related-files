@@ -1,0 +1,39 @@
+Multithreaded races
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+1. class: Ljava/util/ArrayList;  field:16
+   TRUE-POSITIVE: 7616, 7877   field:size
+   7616: accessed in SyncManager.getService() accessed from SyncMessageHandler.handleMessage()
+   in message 312 posted by tid:9 in method SyncService.insertNote() forked in msg:67 due
+   to clicking on Sync button.
+   7877: accessed in SyncManager.createServices() called from Tomdroid.onResume()
+   event sequence to reproduce race: Open Tomdroid -> Click  on a note -> Click on Sync button
+   -> before sync completes quickly click back button.
+   This also leads to crashing run when SyncMessageHandler calls onSynchronizationDone(). 
+   It results in NPE if BACK press has resulted in a new screen and thus the widget will be missing.
+
+2. class: Lorg/tomdroid/ui/Actionbar;  field:248
+3. class: Lorg/tomdroid/util/NoteListCursorAdapter;  field:20
+   FALSE-POSITIVE: 979, 7927  .  field: CursorAdapter.mContext
+   involves untracked binder thread posts
+
+4. class: Lorg/tomdroid/util/NoteListCursorAdapter;  field:24
+   FALSE-POSITIVE: 977, 7926  
+   involves untracked binder thread posts
+   
+5. class: Lorg/tomdroid/util/NoteListCursorAdapter;  field:36
+   FALSE-POSITIVE: 978, 7925  
+   involves untracked binder thread posts   
+
+Races due to co-enabled events
+
+1. object: 0x410df4a8  field:16 co-enabled trigger opIds:436, 1409
+   FALSE-POSITIVE: 3483, 7877  field:ArrayList.size
+   3483 is due to clicking on Sync button whereas 7877 is due to
+   onResume() executed due to BACK press (check ID-1 in cross-post races).
+   The other order is not possible because pressing on BACK button
+   disables  all widgets on current screen

@@ -1,0 +1,230 @@
+Multithreaded races
+-------------------
+1. class: Lcom/android/browser/BrowserSettings;  field:1004  sInitialized
+   TRUE-POSITIVE : 1660, 1930 - 1660 is accessed inside the first LAUNCH-ACT. 1930 is accessed
+   by a thread forked (tid:13) due to calling BackgroundHandler.execute ...this is called before 1660 
+   check : ID:31 on page 84 in hard bound book
+
+   type: benign . reaches BrowserSetting.setController() with sInitialized value being true or false
+   depending on the order taken. But this does not cause any ill behaviour or different behaviour as 
+   the code protected by boolean is anyways executed eventually irrespective of if it got executed or
+   not inside setController()
+
+class: Lcom/android/browser/DataController$DCMessage;  field:12
+   FALSE-POSITIVE : 13599, 13557 - uses a custom queue DataControllerHandler$DataControllerHandler
+   and there is a sendMessage to this custom queue by tid:1 after 13557. tid:21 makes 13599 access.
+
+class: Lcom/android/browser/DataController$DataControllerHandler;  field:68 parkState
+   FALSE-POSITIVE: check ID-32 on page 84 in hard bound book. accesses - 13585, 13586
+
+class: Lcom/android/browser/autocomplete/SuggestedTextController$TextChangeAttributes;  field:8
+   FALSE-POSITIVE : 14917, 12985 - 14917 has a binder thread post in between which is untracked
+
+class: Lcom/android/browser/autocomplete/SuggestedTextController$TextChangeAttributes;  field:12
+   FALSE-POSITIVE
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+------------------------------------------------------
+class: Ljava/lang/StringBuffer;  field:8
+False positive: untracked binder thread
+
+class: Ljava/lang/StringBuffer;  field:12
+False positive: untracked binder thread
+
+class: Ljava/lang/StringBuffer;  field:16
+False positive: untracked binder thread
+
+class: Ljava/util/concurrent/LinkedBlockingQueue;  field:20
+FALSE-POSITIVE
+
+class: Landroid/animation/ObjectAnimator;  field:8
+FALSE-POSITIVE : binder
+
+class: Landroid/animation/ObjectAnimator;  field:72
+FALSE-POSITIVE : binder
+
+class: Landroid/animation/ObjectAnimator;  field:84
+FALSE-POSITIVE : binder
+
+class: Landroid/animation/ObjectAnimator;  field:88
+FALSE-POSITIVE : binder
+
+class: Landroid/text/SpannableStringBuilder;  field:36
+FALSE-POSITIVE : binder
+
+class: Landroid/text/SpannableStringBuilder;  field:40
+FALSE-POSITIVE : binder
+
+class: Landroid/webkit/WebSettings;  field:44
+False positive - same reason as below
+
+class: Landroid/webkit/WebSettings;  field:128
+False positive - same reason as below
+
+class: Landroid/webkit/WebSettings;  field:148
+False positive - same reason as below
+
+class: Landroid/webkit/WebSettings;  field:156
+False positive - same reason as below
+
+class: Landroid/webkit/WebSettings;  field:160
+False positive - same reason as below
+
+class: Landroid/webkit/WebSettings;  field:172 mMinimumFontSize
+FALSE-POSITIVE : accesses: 5154, 11684
+check page 83 on hard bound book (ID-17)
+
+class: Landroid/webkit/WebSettings;  field:176 mMinimumLogicalFontSize
+FALSE-POSITIVE : accesses: 5165, 11693
+check page 83 on hard bound book (ID-16)
+
+class: Landroid/webkit/WebSettings;  field:180
+FALSE-POSITIVE : accesses: 5115, 11655 mNavDump
+check page 83 on hard bound book (ID-15)
+
+class: Landroid/webkit/WebSettings;  field:208
+FALSE-POSITIVE : accesses: 11735, 5228 mAutoFillEnabled
+check page 83 on hard bound book (ID-14)
+
+class: Landroid/webkit/WebSettings;  field:212
+FALSE-POSITIVE : accesses: 11779, 5276 mSaveFormData
+check page behind 82 on hard bound book (ID-13)
+
+class: Landroid/webkit/WebSettings;  field:216 mSavePassword
+FALSE-POSITIVE : accesses: 11773, 5271 
+check page behind 82 on hard bound book (ID-12)
+
+class: Landroid/webkit/WebSettings;  field:256
+FALSE-POSITIVE : accesses: 11790, 5283 mUseDefaultUserAgent
+check page behind 82 on hard bound book (ID-11)
+
+class: Landroid/webkit/WebSettings;  field:268
+FALSE-POSITIVE : accesses: 11790, 5283 mUseWideViewPort
+check page behind 82 on hard bound book (ID-10)
+
+class: Landroid/widget/FrameLayout;  field:360
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageButton;  field:360
+FALSE-POSITIVE
+
+class: Landroid/widget/ImageView;  field:44
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageView;  field:360
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageView;  field:368
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageView;  field:400
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageView;  field:404
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageView;  field:408
+False positive - binder thread untracked
+
+class: Landroid/widget/ImageView;  field:436
+FALSE-POSITIVE
+
+class: Lcom/android/browser/BrowserSettings;  field:20  mController
+TRUE-POSITIVE : accesses - 1659, 11592 
+check ID-26 on page behind pg.83
+
+type: benign. it performs a null check before making a call. without this check there could have been a NPE
+due to this race. checked other places where mController could be called without null check. but these code
+regions are not reached during launch.
+
+class: Lcom/android/browser/BrowserSettings;  field:52  mNeedSharedSync
+TRUE-POSITIVE : accesses - 4933, 11575 
+check ID-25 on page behind pg.83
+
+type : benign . even though mNeedSharedSync value could be true or false
+based on the sequence of the two racey operations, it does not affect anything. If
+mNeedSharedSync is true then syncSharedSettings() gets called. But syncSharedSettings()
+is the one that sets it to false (indicating sync has already happened). So this does 
+not affect functionality. Also the opposite ordering is highly improbable (reproduced
+by setting a sleep time of 10sec for before posting LAUNCH-ACT).
+
+class: Lcom/android/browser/BrowserWebView;  field:980
+False positive - binder thread untracked
+
+class: Lcom/android/browser/NavigationBarPhone;  field:360
+FALSE-POSITIVE
+
+class: Lcom/android/browser/PageProgressView;  field:360
+FALSE-POSITIVE : binder thread
+
+class: Lcom/android/browser/PageProgressView;  field:472
+FALSE-POSITIVE : binder thread
+
+class: Lcom/android/browser/PageProgressView;  field:476
+FALSE-POSITIVE : binder thread
+
+class: Lcom/android/browser/PageProgressView;  field:480
+FALSE-POSITIVE : binder thread
+
+class: Lcom/android/browser/Tab$PageState;  field:8
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab$PageState;  field:12
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab$PageState;  field:16
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab$PageState;  field:20
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab$PageState;  field:24
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab$PageState;  field:36
+FALSE-POSITIVE : binder thread
+
+class: Lcom/android/browser/Tab;  field:44
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab;  field:132
+FALSE-POSITIVE
+
+class: Lcom/android/browser/Tab;  field:136
+FALSE-POSITIVE : binder
+
+class: Lcom/android/browser/Tab;  field:156
+FALSE-POSITIVE : untracked binder thread
+
+class: Lcom/android/browser/TitleBar$1;  field:12
+FALSE-POSITIVE : same reason as below
+
+class: Lcom/android/browser/TitleBar;  field:568
+FALSE-POSITIVE
+
+class: Lcom/android/browser/TitleBar;  field:580
+FALSE-POSITIVE : binder
+
+class: Lcom/android/browser/TitleBar;  field:584
+FALSE-POSITIVE : same reason as below
+
+class: Lcom/android/browser/UrlInputView;  field:40
+FALSE-POSITIVE : binder
+
+class: Lcom/android/browser/UrlInputView;  field:692
+FALSE-POSITIVE : binder
+
+class: Lcom/android/browser/UrlInputView;  field:908
+FALSE- POSITIVE : same reason as below and involves same message
+
+class: Lcom/android/browser/autocomplete/SuggestedTextController;  field:16
+FALSE-POSITIVE : unknown binder thread post intervention (12583, 14284)
+
+Races due to co-enabled events
+
+
+Uncategorized races

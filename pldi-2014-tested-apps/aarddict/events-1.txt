@@ -1,0 +1,7 @@
+install aarddict. Copy a dictionary file to Download directory on Sdcard. 
+start the app and press scan button and load dictionary.
+Now force close the app and restart it with DroidRacer.
+
+event 1: Click Menu button
+event 2: Click BACK button
+

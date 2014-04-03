@@ -1,0 +1,4 @@
+cz.romario.opensudoku
+Lcz/romario/opensudoku/
+2
+0

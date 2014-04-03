@@ -1,0 +1,147 @@
+Multithreaded races
+1. class: Ljava/lang/String;  field:16
+   FALSE-PSOITIVE ...difficult to verify string races 
+
+2. class: Ljava/util/LinkedHashMap;  field:32
+   TRUE-POSITIVE: 1781, 1981 . field: HashMap.size . benign
+   1781: tid:8 does a HashMap.put which increments size
+   1981: tid:1 reads size in method HashMap.isEmpty() in
+   msg:10 from onPrepareOptionsMenu()
+   based on the ordering isEmpty can be false ot true but this does not 
+   seem to produce misbehaviour
+
+3. class: Ljava/util/LinkedHashMap;  field:36
+   FALSE-POSITIVE: 1784, 2028 .  field: HashMap.table
+   could not reproduce the other order
+
+4. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:296
+   TRUE-POSITIVE: 1442, 1355. field: SGTPuzzles.menu   ..benign race
+   1355 - SGTPuzzles.onCreateOptionsMenu() sets the value for menu field
+   and thus makes it non-null
+   1442 - checks menu for null value inside SGTPuzzles.changedState() before
+   posting a runOnUiThread()
+
+5. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:340
+   TRUE-POSITIVE: 1431, 1944 .  field: SGTPuzzles.redoEnabled . benign
+   1431 - tid:8 sets redoEnabled to false inside SGTPuzzles.changedState()
+   reached from SGTPuzzles.run() containing init() as the first statement. This 
+   is spawned from SGTPuzzles' LAUNCH_ACT
+   1944 - read by tid:1 inside onPrepareOptionsMenu() of SGTPuzzles in tid:10...
+   it reads FALSE irrespective of the order.   
+
+6. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:344
+   TRUE-POSITIVE: 1353, 1967 . field: SGTPuzzles.resizeOnDone . benign
+   both are writes performed inside SGTPuzzles.gameViewResized() one by
+   tid:8 and another by tid:1 (msg:7)   
+
+7. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:352
+   TRUE-POSITIVE: SGTPuzzles.customVisible . benign
+   same reason as above and accessed in the same set of methods by same set of threads 
+
+8. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:356
+   TRUE-POSITIVE: 1803, 1938 . field: SGTPuzzles.solveEnabled . benign
+   1803: inside msg:10 tid:1 reads solveEnabled in method SGTPuzzles.onPrepareOptionsMenu()
+   1938: in method SGTPuzzles.gameStarted() tid:8 writes a value to solveEnabled
+
+9. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:364
+   TRUE-POSITIVE: 1968, 2191 . field: SGTPuzzles.currentType . benign
+   1968: currenType set to 0 inside SGTPuzzles.tickTypeItem() by tid:8. its
+   initial value too is 0.
+   2191: read inside onPrepareOptionsMenu() by tid:1
+
+10. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:380
+    TRUE-POSITIVE: 1430, 1940 . field: SGTPuzzles.undoEnabled . benign
+    same reason, same set of threads and methods as multithreaded race ID-5
+
+11. class: Lname/boyle/chris/sgtpuzzles/SmallKeyboard;  field:472
+    TRUE-POSITIVE: 1435, 1165  field: KeyboardView.mKeyboard . benign
+    1165: tid:1 inside msg:7 sets mKeyBoard in method KeyboardView.setKeyboard()
+    1435: tid:8 reads mKeyboard using getKeyboard()
+    after getKeyboard possible NPE has been prevented with a null check
+
+12. class: Lname/boyle/chris/sgtpuzzles/SmallKeyboard;  field:716
+    TRUE-POSITIVE: 1107, 1438  field: SmallKeyboard.undoEnabled
+    1107: tid:1 reads undoEnabled inside SmallKeyboard.onMeasure() in msg:7
+    1438: tid:8 sets a value to undoEnabled in SmallKeyboard.setUndoRedoEnabled()
+
+13. class: Lname/boyle/chris/sgtpuzzles/SmallKeyboard;  field:720 
+    TRUE-POSITIVE: 1106, 1434  field: SmallKeyboard.redoEnabled
+    same as above
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+1. class: Ljava/util/LinkedHashMap;  field:24
+   TRUE-POSITIVE: 2005, 9545. field: HashMap.keySet  .  benign
+   both the accesses happen in HashMap.keySet() one being read another
+   right. 2005 is due to msg:10 and 9545 due to msg:17..check other 
+   races below for details about these msgs
+
+2. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:24
+   FALSE-POSITIVE: 2227, 9660 . field: MenuItemImpl.mTitle
+   covered due to asynchronous race on ID-12
+
+3. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:32
+   FALSE-POSITIVE: 1949, 2436 . field: MenuItemImpl.mIconResId
+   covered due to a multithreaded race at ID-4.
+
+4. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:64
+   FALSE-POSITIVE: 1950, 2437 . field: MenuItemImpl.mIconDrawable
+   covered due to a multithreaded race at ID-4.
+
+5. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:88
+   FALSE-POSITIVE: 2205, 9647 . field: MenuItemImpl.mFlags
+   covered due to a multithreaded race at ID-4.
+   
+6. class: Lname/boyle/chris/sgtpuzzles/GameView;  field:424
+   TRUE-POSITIVE: 1348, 2610  field: GameView.h (height field). benign
+   1348: written inside onSizeChanged() of GameView class, by msg:7 posted
+   by LAUNCH_ACT of SGTPuzzles
+   2610: read inside SGTPuzzles.handleMessage (line: 129) posted by tid:8 (same as ID-10)
+
+7. class: Lname/boyle/chris/sgtpuzzles/GameView;  field:440
+   TRUE-POSITIVE: 1347, 2607  field: GameView.w (width field)
+   repro same as above
+
+8. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:72
+   TRUE-POSITIVE: 2226, 2558  field: Activity.mTitle .. results in reading wrong value but is benign
+   2226: Activity.getTitle accessed eventually from onCreateOptionsMenu() of SGTPuzzles activity.
+         This reads value "Puzzles"
+   2558: Activity.setTile written by a runOnUiThread posted from SGTPuzzles.gameStarted() by tid:8 
+   forked in LAUNCH-ACTIVITY of SGTPuzzles. This writes value "Black Box". These two can interchange.
+
+9. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:224
+   TRUE-POSITIVE: similar to above one. could not figure out the field...but control path reproduced in 
+   different order
+
+10. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:252
+    TRUE-POSITIVE: 1352, 9395  field:progress of class SGTPuzzles
+    race between access due to msg:7 posted by LAUNCH_ACTIVITY of SGTPuzzles
+    and msg:17SGTPuzzles.handleMessage() posted by tid:8 (last msg posted by it) forked
+    inside LAUNCH-ACT. In 9395 progress is set to null inside dismissDialog().
+    1352 reads value of progress and performs a resize action. Based on the ordering
+    the resize is either performed or not. This seems benign 
+
+11. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:276
+    FALSE-POSITIVE: 1768, 9395  field: SGTPuzzles.hackForSubMenus
+    This race is covered by race on ID-12 which does a null check before executing
+    code that makes the second access
+  
+12. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:296
+    TRUE-POSITIVE: 1355, 9400 field: SGTPuzzles.menu  . benign
+    1355: writes a value to menu field in SGTPuzzles.onCreateOptionsMenu() in msg:10
+    posted by msg:5 in tid:1 which in turn is posted by LAUNCH_ACT for SGTPuzzles
+    9400: checks if menu is NULL inside SGTPuzzles.handleMessage() posted by tid:8
+    forked from tid:1 inside LAUNCH_ACT of SGTPuzzles and running SGTPuzzles.run()
+    containing init() as the first function
+    
+13. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:320
+    TRUE-POSITIVE: 1762, 9368 field: SGTPuzzles.homeAsUpNoticeable  . benign
+    1762: read inside onCreateOptionsMenu() in msg:10
+    9362: set to true inside handleMessage ...same as above.
+
+14. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:344
+    FALSE-POSITIVE: 1353, 2603 field: SGTPuzzles.resizeOnDone 
+    ID-10 is a covering race for this

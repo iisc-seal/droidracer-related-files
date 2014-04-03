@@ -1,0 +1,3 @@
+The one reported is the first 7-length sequence
+produced by DroidRacer, when the app is opened
+uninitialized.

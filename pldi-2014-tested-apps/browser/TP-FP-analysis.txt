@@ -1,0 +1,88 @@
+Multithreaded races
+class: Lcom/android/browser/BrowserSettings;  field:1004
+class: Lcom/android/browser/DataController$DataControllerHandler;  field:68
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+class: Ljava/lang/StringBuffer;  field:8
+class: Ljava/lang/StringBuffer;  field:12
+class: Ljava/lang/StringBuffer;  field:16
+class: Ljava/util/concurrent/LinkedBlockingQueue;  field:20
+class: Landroid/animation/ObjectAnimator;  field:8
+->1. FALSE-POSITIVE: 17120, 15903 . untracked binder thread
+->2. FALSE-POSITIVE: 14423, 15832 . untracked binder thread
+
+class: Landroid/animation/ObjectAnimator;  field:72
+->1. FALSE-POSITIVE: 17119, 15967 . untracked binder thread
+->2. FALSE-POSITIVE: 14484, 15831 . untracked binder thread
+
+class: Landroid/animation/ObjectAnimator;  field:84
+->1. FALSE-POSITIVE: 17123, 15942 . untracked binder thread
+->2. FALSE-POSITIVE: 14457, 15839 . untracked binder thread
+
+class: Landroid/animation/ObjectAnimator;  field:88
+->1. FALSE-POSITIVE: 17142, 15921 . untracked binder thread
+->2. FALSE-POSITIVE: 14438, 15861 . untracked binder thread
+
+class: Landroid/text/SpannableStringBuilder;  field:36
+class: Landroid/text/SpannableStringBuilder;  field:40
+class: Landroid/webkit/WebSettings;  field:44
+class: Landroid/webkit/WebSettings;  field:128
+class: Landroid/webkit/WebSettings;  field:148
+class: Landroid/webkit/WebSettings;  field:156
+class: Landroid/webkit/WebSettings;  field:160
+class: Landroid/webkit/WebSettings;  field:172
+class: Landroid/webkit/WebSettings;  field:176
+class: Landroid/webkit/WebSettings;  field:180
+class: Landroid/webkit/WebSettings;  field:208
+class: Landroid/webkit/WebSettings;  field:212
+class: Landroid/webkit/WebSettings;  field:216
+class: Landroid/webkit/WebSettings;  field:256
+class: Landroid/webkit/WebSettings;  field:268
+class: Landroid/widget/FrameLayout;  field:360
+class: Landroid/widget/ImageButton;  field:360
+->1. FALSE-POSITIVE: 14257, 15780 . untracked binder thread
+->2. FALSE-POSITIVE: 14284, 15810 . untracked binder thread
+
+class: Landroid/widget/ImageView;  field:44
+class: Landroid/widget/ImageView;  field:360
+->1. FALSE-POSITIVE: 14257, 15780 . untracked binder thread
+->2. FALSE-POSITIVE: 14284, 15810 . untracked binder thread
+
+class: Landroid/widget/ImageView;  field:368
+class: Landroid/widget/ImageView;  field:400
+->1. FALSE-POSITIVE: 14247, 15771 . untracked binder thread
+->2. FALSE-POSITIVE: 14225, 15749 . untracked binder thread
+->3. FALSE-POSITIVE: 14161, 15738 . untracked binder thread
+->4. FALSE-POSITIVE: 13665, 15523 . untracked binder thread
+->5. FALSE-POSITIVE: 13797, 15578 . untracked binder thread
+->6. FALSE-POSITIVE: 14238, 15758 . untracked binder thread
+
+class: Landroid/widget/ImageView;  field:404
+class: Landroid/widget/ImageView;  field:408
+class: Landroid/widget/ImageView;  field:436
+class: Lcom/android/browser/BrowserSettings;  field:20
+class: Lcom/android/browser/BrowserSettings;  field:52
+class: Lcom/android/browser/BrowserWebView;  field:980
+class: Lcom/android/browser/NavigationBarPhone;  field:360
+class: Lcom/android/browser/PageProgressView;  field:360
+class: Lcom/android/browser/PageProgressView;  field:472
+class: Lcom/android/browser/PageProgressView;  field:476
+class: Lcom/android/browser/PageProgressView;  field:480
+class: Lcom/android/browser/Tab$PageState;  field:8
+class: Lcom/android/browser/Tab$PageState;  field:16
+class: Lcom/android/browser/Tab;  field:44
+class: Lcom/android/browser/Tab;  field:132
+class: Lcom/android/browser/Tab;  field:156
+class: Lcom/android/browser/TitleBar$1;  field:12
+class: Lcom/android/browser/TitleBar;  field:568
+class: Lcom/android/browser/TitleBar;  field:580
+class: Lcom/android/browser/TitleBar;  field:584
+class: Lcom/android/browser/UrlInputView;  field:40
+class: Lcom/android/browser/UrlInputView;  field:692
+class: Lcom/android/browser/UrlInputView;  field:908
+class: Lcom/android/browser/autocomplete/SuggestedTextController;  field:16
+

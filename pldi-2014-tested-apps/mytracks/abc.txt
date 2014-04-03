@@ -1,0 +1,6 @@
+com.google.android.maps.mytracks
+Lcom/google/android/apps/mytracks/
+com.google.android.apps.mytracks.TrackListActivity
+6
+0
+9997

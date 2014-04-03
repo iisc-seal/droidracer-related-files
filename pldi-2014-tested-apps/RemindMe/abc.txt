@@ -1,0 +1,6 @@
+com.appsrox.remindme
+Lcom/appsrox/remindme/
+com.appsrox.remindme.MainActivity
+7
+0
+9997

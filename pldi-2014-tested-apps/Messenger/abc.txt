@@ -1,0 +1,6 @@
+com.android.mms
+Lcom/android/mms/
+com.android.mms.ui.ConversationList
+3
+0
+9997

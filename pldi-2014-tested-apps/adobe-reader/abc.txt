@@ -1,0 +1,6 @@
+com.adobe.reader
+Lcom/adobe/reader/
+com.adobe.reader.AdobeReader
+1
+10
+9997

@@ -1,0 +1,7 @@
+com.facebook.katana
+Lcom/facebook/katana/
+com.facebook.katana.LoginActivity
+1
+0
+9997
+2500

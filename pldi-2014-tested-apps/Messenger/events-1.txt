@@ -1,0 +1,7 @@
+This is a default app in Android 4.0.1. directly
+start it with DroidRacer without any initialization.
+Note that there should be no msg in the list.
+
+event 1: Click on NMew-Message button
+event 2: enter text in Recepients editor (address text box)
+event 3: enter text in message text box

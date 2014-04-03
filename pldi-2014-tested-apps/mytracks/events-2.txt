@@ -1,0 +1,8 @@
+event 1: Click Accept
+event 2: Click on Search
+event 3: query search text "whats happening"
+event 4: Click Search
+event 5: query search text "whats happening"
+event 6: Click MyTracks icon 
+
+**This is reproduced by DroidRacer in the 2nd run

@@ -1,0 +1,5 @@
+After installing k9 mail create an account, initialize and exit.
+
+testing run events:
+
+event 1: Click on Search button

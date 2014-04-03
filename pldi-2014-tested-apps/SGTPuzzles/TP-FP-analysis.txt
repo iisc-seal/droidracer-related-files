@@ -1,0 +1,59 @@
+Multithreaded races
+class: Ljava/util/LinkedHashMap;  field:36
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:296
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:340
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:344
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:352
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:356
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:364
+class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:380
+class: Lname/boyle/chris/sgtpuzzles/SmallKeyboard;  field:472
+class: Lname/boyle/chris/sgtpuzzles/SmallKeyboard;  field:716
+class: Lname/boyle/chris/sgtpuzzles/SmallKeyboard;  field:720
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+1. class: Ljava/util/LinkedHashMap;  field:24
+2. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:24
+3. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:32
+->1. FALSE-POSITIVE: 2198, 1794. same reason as 5.4
+
+->2. FALSE-POSITIVE: 2250, 1798 same reason as 5.4
+
+4. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:64
+->1. FALSE-POSITIVE: 1795, 2199. same reason as 5.4
+
+->1. FALSE-POSITIVE: 1799, 2251. same reason as 5.4
+
+5. class: Lcom/android/internal/view/menu/MenuItemImpl;  field:88
+->1. FALSE-POSITIVE: 1811, 8058        field:mFlags
+  1811: accessed in MenuItemImpl.setEnabled() accessed due to the first call
+  to onPrepareOptionsMenu() in msg:17.
+  8058: accessed in MenuItemImpl.setEnabled() accessed from SGTPuzzles.handleMessage()
+  in the case DONE. this is posted by tid:8 spawned in SGTPuzzles.startGame(). 
+  msg:17 is posted by obtainMessage...line in the thread's runnable
+  This race is prevented due to a check if menu == NULL 
+->2. FALSE-POSITIVE: 1848, 8246. same reason as above
+
+->3. FALSE-POSITIVE: 1722, 7900. same reason as above
+
+->4. FALSE-POSITIVE: 1709, 2245. 2245 is accessed inside SGTPuzzles.run() on line 997
+   posted by tid:8 in line 996 in same class. 
+   The opposite order is prevented due to null check on menu.
+
+->5. FALSE-POSITIVE: 1744, 7937 .  same reason as 1.
+
+->6. FALSE-POSITIVE: 1690, 2193 .  same reason as 4.
+
+6. class: Lname/boyle/chris/sgtpuzzles/GameView;  field:424
+7. class: Lname/boyle/chris/sgtpuzzles/GameView;  field:440
+8. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:72
+9. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:224
+10. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:252
+11. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:276
+12. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:296
+13. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:320
+14. class: Lname/boyle/chris/sgtpuzzles/SGTPuzzles;  field:344

@@ -1,0 +1,4 @@
+adobe reader is not initialized before running DroidRacer and multiple runs should
+be started from clean state.
+
+event 1: Click on Allow in the starting popup window

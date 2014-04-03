@@ -1,0 +1,12 @@
+before starting the exploration we had opened SGTPuzzles once and opened game 1 and then
+stopped SGTPuzzles. Then DroidRacer was run. Before running, in abc.sh 12,13,14,15 and
+uncomment line 11. This prevents clearing all data under
+/data/data/<app-package> and thus does not start testing from
+scratch across runs. 
+
+-->1st game's screen opens
+event 1: Click SGT-Back on top left corner
+event 2: Click on the i-icon (2nd right optionItem)
+event 3: Click on SDCard opener icon (top rightmost optionItem)
+
+**DroidRacer reproduces this in the 2nd run

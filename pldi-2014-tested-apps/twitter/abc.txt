@@ -1,0 +1,6 @@
+com.twitter.android
+Lcom/twitter/applib/
+com.twitter.applib.StartActivity
+1
+0
+9997

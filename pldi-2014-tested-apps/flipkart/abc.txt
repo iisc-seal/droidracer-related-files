@@ -1,0 +1,6 @@
+com.flipkart.android
+Lcom/flipkart/android/
+com.flipkart.android.SplashActivity
+1
+100000
+9997

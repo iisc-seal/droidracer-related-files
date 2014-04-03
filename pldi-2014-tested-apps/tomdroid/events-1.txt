@@ -1,0 +1,11 @@
+install tomdroid. copy 1-2 tomboy notes from your desktop
+into tomdroid folder created on SDCard. Do not start tomdroid.
+Directly start tomdroid with DroidRacer.
+
+event 1: Click OK
+event 2: Click on a note
+event 3: Click on Sync button
+event 4: immediately click on main screen containing text
+event 5: long click on the same screen
+event 6: Click on Menu
+event 7: Click BACK

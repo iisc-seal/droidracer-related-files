@@ -1,0 +1,23 @@
+Multithreaded races
+1. class: Ljava/util/concurrent/PriorityBlockingQueue;  field:32
+   FALSE-POSITIVE: 9408, 19319. check ID-1 in page 24 of research diary 4
+
+2. class: Lcom/fsck/k9/service/MailService;  field:8195
+   TRUE-POSITIVE: 9774, 11230. check ID-2 in page 24, research diary 4
+
+3. class: Lcom/fsck/k9/service/MailService;  field:8196
+   TRUE-POSITIVE: 9775, 14304. check ID-3 in page 25, research diary 4
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+
+Races due to co-enabled events
+
+1. class: Lcom/fsck/k9/service/MailService;  field:8197 co-enabled trigger opIds:1159, 319
+    FALSE-POSITIVE: 1159 is a RESUME_ACTIVITY and 319 is a SERVICE_ARGS. startService corresponding to
+    319 is issued before startActivity corresponding to 1159. Even though scheduleLaunch, scheduleServiceArgs etc.
+    are one_way (i.e not synchronous from system_server side), the app process seems to queue certain kind of IPC
+    

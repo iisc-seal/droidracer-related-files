@@ -1,0 +1,206 @@
+Multithreaded races
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+---------------------------------------------------
+1. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:112 field-name: mDurationIdx
+   FALSE-POSITIVE : check reason for ID: 18 of cross-post races
+   accesses: 4972, 4152
+
+2. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:128 field-name: mTitleIdx
+   FALSE-POSITIVE : same reason as ID: 18 of cross-post races but involves a delayed post
+   accesses: 4874, 4148
+
+3. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:132 field-name: mAudioIdIdx
+   FALSE-POSITIVE : same reason as ID: 18 of cross-post races but involves a delayed post
+   accesses: 5255, 4155
+
+4. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:136
+   FALSE-POSITIVE : same reason as ID: 18 of cross-post races but involves a delayed post
+   accesses:5134, 4150
+
+Races due to cross thread post in ancestor asyncblocks
+------------------------------------------------------
+1. class: Ljava/util/HashMap;  field:32 field-name: table
+   FALSE-POSITIVE : accesses: 1868, 2062  
+   check page 81 ID-39 in hard bound book.
+
+2. class: Ljava/util/HashMap;  field:36  field-name:size
+   FALSE-POSITIVE : accesses: 1864, 2066  
+   check page 81 ID-38 in hard bound book.
+
+3. class: Ljava/util/HashMap;  field:44  field-name:modCount
+   FALSE-POSITIVE : accesses: 1862, 2065
+   check page 81 ID-37 in hard bound book.
+
+4. class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:24 mCursor
+   FALSE-POSITIVE : accesses: 1933, 1372
+   check page 81 ID-34 in hard bound book.
+
+5. class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:36 mDataValid
+   TRUE-POSITIVE : accesses: 1931, 1378
+   check page 81 ID-36 in hard bound book.
+
+   type: benign
+
+6. class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:44 mRowIDColumn
+   FALSE-POSITIVE : accesses: 1939, 1377
+   check page 81 ID-35 in hard bound book.
+
+7. class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:136 mArtistIdx
+   FALSE-POSITIVE : accesses: 1358, 1773
+   check page 80 (behind) ID-33 in hard bound book.
+
+8. class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:140 mAlbumIdx
+   FALSE-POSITIVE : accesses: 1356, 1735
+   check page 80 (behind) ID-32 in hard bound book.
+
+9. class: Lcom/android/music/AlbumBrowserActivity$AlbumListAdapter;  field:144 mAlbumArtIndex
+   FALSE-POSITIVE : accesses: 1360, 1812
+   check page 80 (behind) ID-31 in hard bound book.
+
+10. class: Lcom/android/music/TouchInterceptor;  field:24 field-name: mBGDrawable
+    TRUE-POSITIVE : accesses: 4114, 4395
+    check page 80 (behind) ID-30 in hard bound book.
+
+    type: benign  (does not result in a change of behaviour or state either way)
+
+11. class: Lcom/android/music/TouchInterceptor;  field:248  mPrivateFlags
+    TRUE-POSITIVE : accesses: 4400, 3769
+    check page 79 ID-18 in hard bound book.
+
+    type: benign  (does not result in a change of behaviour or state either way)
+
+12. class: Lcom/android/music/TouchInterceptor;  field:252  mPrivateFlags2
+    TRUE-POSITIVE : accesses: 4413, 3841
+    check page 79 ID-17 in hard bound book. 
+ 
+    type: benign  (does not result in a change of behaviour or state either way)
+
+13. class: Lcom/android/music/TouchInterceptor;  field:360 field-name: mViewFlags
+    TRUE-POSITIVE : accesses: 4394, 3798
+    check page 79 ID-16 in hard bound book. 
+
+    type: benign  (does not result in a change of behaviour or state either way)
+
+14. class: Lcom/android/music/TouchInterceptor;  field:488 field-name: mChildCount
+    FALSE-POSITIVE: accesses - 1389, 2535 check page behind 80, ID-29
+
+15. class: Lcom/android/music/TouchInterceptor;  field:584 field:mDataChanged
+    FALSE-POSITIVE: accesses - 1380, 2416 check page 79 (behind) ID-19 for
+    explanation
+
+16. class: Lcom/android/music/TouchInterceptor;  field:596 field:mBlockLayoutRequests
+    FALSE-POSITIVE: accesses - 1411, 2474 page 80 ID-28
+
+17. class: Lcom/android/music/TouchInterceptor;  field:604 field: mItemCount
+    FALSE-POSITIVE: accesses - 1387, 2518 check page 80 ID-27
+
+18. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:112  field-name: mDurationIdx
+    FALSE-POSITIVE: logically avoided. access: 4538, 4152 (check verification process described on
+    page 77 and behind page 76 in hard bound book maintained after returning from MPI.
+
+19. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:128
+    FALSE-POSITIVE: same reason as ID:18 of cross-post races (4493, 4148)
+
+20. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:132
+    FALSE-POSITIVE : FALSE-POSITIVE : same reason as ID: 18 of cross-post races  (4686, 4155)
+  
+21. class: Lcom/android/music/TrackBrowserActivity$TrackListAdapter;  field:136
+    FALSE-POSITIVE : same reason as ID: 18 of cross-post races
+    accesses: 4624, 4150
+
+Races due to co-enabled events
+------------------------------
+todo: actually there is no race b/w two trigger-receivers or receiver and event here as the app itself is 
+calling broadcastIntent...but this has not been modelled well...we need to re-think the lifecycle design 
+carefuly. All these races will vanish after we get lifecycle right!
+
+1. class: Landroid/widget/LinearLayout;  field:360 co-enabled trigger opIds:284, 288
+   FALSE-POSITIVE : same reason as ID-22 of this section
+
+2. class: Lcom/android/music/MediaPlaybackService$ServiceStub;  field:8 co-enabled trigger opIds:608, 139
+   FALSE-POSITIVE : 608 is a SERVICE_CONNECT whose corresponding create service is 139. They both
+   have a HB not exposed due to limited modelling of lifecycle callbacks  (MediaPlaybackService)
+
+3. class: Lcom/android/music/MediaPlaybackService$ServiceStub;  field:12 co-enabled trigger opIds:608, 139
+   FALSE-POSITIVE : same reason as above
+
+4. class: Lcom/android/music/MediaPlaybackService;  field:152 co-enabled trigger opIds:250, 603
+   maybe FALSE-POSITIVE ... 250 is service args or the service to which 603 has bound and called
+   service_connect ...i could not find if for such a started+bound service what are the HB between these
+   two callbacks.             (dont report this one)
+   
+5. class: Lcom/android/music/MusicUtils$ServiceBinder;  field:476 co-enabled trigger opIds:324, 608
+   FALSE-POSITIVE : both are SERVICE-CONNECT on the same service by the same component...
+ 
+6. class: Lcom/android/music/MusicUtils;  field:463 co-enabled trigger opIds:608, 324
+   FALSE-POSITIVE : same reason as 5
+
+7. class: Lcom/android/music/MusicUtils;  field:474 co-enabled trigger opIds:250, 603
+   FALSE-POSITIVE : same reason as 4.
+
+10.class: Lcom/android/music/TouchInterceptor;  field:244 co-enabled trigger opIds:284, 473
+   TRUE-POSITIVE : check 26 on page 80 for detailed explanation.   
+   field: mLastIsOpaque, accesses: 1565, 2479
+
+11.class: Lcom/android/music/TouchInterceptor;  field:248 co-enabled trigger opIds:284, 288
+   FALSE-POSITIVE : same reason as ID-9 on page 78 (explanation front and behind page)
+ 
+12.class: Lcom/android/music/TouchInterceptor;  field:488 co-enabled trigger opIds:284, 473
+   TRUE-POSITIVE : check 23 on page 80 for detailed explanation.   
+   field: mChildCount, accesses: 1546, 2535
+
+   type: benign - change in ordering soesnt seem to produce any bad behaviour. tried other 
+   sequence of events too apart from those reported in trace
+
+13.class: Lcom/android/music/TouchInterceptor;  field:516 co-enabled trigger opIds:316, 473
+   TRUE-POSITIVE : check 22 on page 80 for detailed explanation.   
+   field: mFirstPosition, accesses: 1929, 2572
+
+   type : benign - set to 0 in either order ... also tried producing any bad behaviour in vain
+
+14.class: Lcom/android/music/TouchInterceptor;  field:520 co-enabled trigger opIds:316, 320
+   FALSE-POSITIVE : check 15 on page 78 (behind it) for detailed explanation.   
+   field: mSyncRowId, accesses: 4749, 4823
+
+15.class: Lcom/android/music/TouchInterceptor;  field:528 co-enabled trigger opIds:316, 320
+   FALSE-POSITIVE : check 14 on page 78 (behind it) for detailed explanation.   
+   field: mSyncHeight, accesses: 4733, 4807
+
+16.class: Lcom/android/music/TouchInterceptor;  field:572 co-enabled trigger opIds:473, 316
+   TRUE-POSITIVE : check 21 on page 79 (behind it) for detailed explanation.   
+   field: mNeedSync, accesses: 2624, 1922
+
+   type: benign  (mNeedSync is false in both access)
+
+17.class: Lcom/android/music/TouchInterceptor;  field:584 co-enabled trigger opIds:473, 284
+   TRUE-POSITIVE : check 20 on page 79 (behind it) for detailed explanation.   
+   field: mDataChanged, accesses: 1545, 2416
+
+   type: seems benign (either ways mDataChanged is false)
+
+18.class: Lcom/android/music/TouchInterceptor;  field:588 co-enabled trigger opIds:316, 473
+   TRUE-POSITIVE : check 25 on page 80 for detailed explanation.   
+   field: mSelectedPosition, accesses: 1925, 2465
+
+   type: seems benign (either ways mSelectedPosition is false)
+
+19.class: Lcom/android/music/TouchInterceptor;  field:596 co-enabled trigger opIds:284, 473
+   TRUE-POSITIVE : check 24 on page 80 for detailed explanation
+   field: mBlockLayoutRequests, accesses: 1547, 2474
+
+20.class: Lcom/android/music/TouchInterceptor;  field:600 co-enabled trigger opIds:316, 320
+   FALSE-POSITIVE : check page 78 and behind it for detailed explanation.   
+   field: mSpecificTop, accesses: 4752, 4826
+
+21.class: Lcom/android/music/TouchInterceptor;  field:608 co-enabled trigger opIds:316, 320
+   FALSE-POSITIVE : check page 78 and behind it for detailed explanation.   
+   field: mSyncMode, accesses: 4753, 4827
+
+22.class: Lcom/android/music/TouchInterceptor;  field:612 co-enabled trigger opIds:316, 320
+   FALSE-POSITIVE : check page 78 and behind it for detailed explanation.   
+   field: mSyncPosition, accesses: 4751, 4825
+
+Uncategorized races

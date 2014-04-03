@@ -1,0 +1,16 @@
+Multithreaded races
+-------------------
+1. class: Lcz/romario/opensudoku/game/FolderInfo;  field:24
+   FALSE-POSITIVE: resuse of the same memory location by another object
+   after an object has been destroyed  
+ 
+2. database path: /data/data/cz.romario.opensudoku/databases/opensudoku (not reported as DB access)
+
+Async races
+-----------
+
+Races due to cross thread post in ancestor asyncblocks
+
+1. class: Lcz/romario/opensudoku/game/FolderInfo;  field:24
+   FALSE-POSITIVE: resuse of the same memory location by another object
+   after an object has been destroyed  
