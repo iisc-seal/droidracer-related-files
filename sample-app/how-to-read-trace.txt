@@ -1,0 +1,257 @@
+Each race detection run creates a trace file called abc_log.txt.
+
+The trace contains:
+(1) a log of the sequence of concurrency related operations and 
+read-writes on object/class fields accessed due to application code, 
+performed during the run.
+
+E.g., 
+2 THREADINIT tid:1
+3 ENABLE-LIFECYCLE tid:1 component: id:-1 state:BIND-APP
+4 ATTACH-Q tid:1	 queue:1090913792
+8 NATIVE-ENTRY tid:2thread-name:Binder Thread #1
+9 POST src:2 msg:2 dest:-1 delay:0
+10 NATIVE-EXIT tid:2thread-name:Binder Thread #1
+17 CALL tid:1	 msg:2
+18 TRIGGER-LIFECYCLE tid:1 component: id:-1 state:BIND-APP
+rwId:70 WRITE tid:1 obj:0x410b59a0 class:Lorg/tomdroid/NoteProvider; field:36
+23 RET tid:1	 msg:2
+31 POST src:1 msg:5 dest:-1 delay:0
+33 FORK par-tid:1	 child-tid:10
+
+* Each operation has an operation ID. The set of operation IDs of read-write
+(starting as rwId) operations are different from other operations.
+
+* Each operation specifies its operation name and has a format same as the 
+core operations presented in our paper 
+"Race Detection for Android Applications", PLDI 2014)
+
+* ENABLE operations are further divided as ENABLE-LIFECYCLE and ENABLE-EVENT
+based on, if a component lifecycle callback has been enabled or a UI event 
+has been enabled respectively. ENABLE operations are also supplied with
+extra parameters to give information about component/view, its id, its state 
+and so on based on its type.
+
+* POST operation does not specify the destination thread but identifies the 
+message uniquely. It can be connected to its corresponding CALL operation
+based on this unique ID.
+
+* Apart from core operations explained in the paper you will also find operations
+like TRIGGER-EVENT, TRIGGER-SERVICE, TRIGGER-BROADCAST etc. which are used to model
+events/intents and callbacks from environment. Special operations like NATIVE-ENTRY 
+and NATIVE-EXIT serve as delimiters whenever a non-tracked thread 
+(E.g., binder thread, natively created thread) performs a POST operation. 
+Non-tracked threads performing any operation other than message POST truncates 
+the trace, and race detection is performed on the truncated trace.
+
+* We do not log operations posting messages to the front of queue and performing
+concurrency related operations (E.g., lock, fork) by such un-logged messages
+leads to truncation of trace. Basically, our theory and implementation currently
+does not support such operations.
+
+==========================================================================       
+
+(2) Method names of Java methods entered and exited by the main thread and 
+the threads created due to application under test are logged. We start 
+logging methods after a thread enters a method belonging to an application class.
+
+E.g., Let Tomdroid be the application under test. Sample partial method trace:
+
+METHOD ENTRY tid:1       meth:onCreate	 class:Lorg/tomdroid/ui/Tomdroid;
+METHOD ENTRY tid:1	 meth:onCreate	 class:Landroid/app/Activity;
+METHOD ENTRY tid:1	 meth:dispatchCreate	 class:Landroid/app/FragmentManagerImpl;
+                           :
+                           :
+METHOD EXIT tid:1       meth:onCreate	 class:Lorg/tomdroid/ui/Tomdroid;
+
+=========================================================================
+
+(3) HB Graph size printed at the end of the trace is the size reported after 
+cleaning up the trace by removing POSTs with no corresponding CALLs etc.
+So the size reported may not be identical to the last operation ID.
+
+=========================================================================
+
+(4) Categorization of races in the trace and class name / object id involved
+in the trace. We currently report one witness per race reported per category.
+In older abc_log.txt files (having old mentioned in their names) you may find
+multiple witnesses.
+
+E.g., for TomDroid
+RACE rwId1:7286 type - WRITE  obj - 0x41105448  class - Lorg/tomdroid/ui/Actionbar; field -   fieldIdx - 248  dbPath -   tid - 1  accessId - 87
+     rwId2:7809 type - WRITE  obj - 0x41105448  class - Lorg/tomdroid/ui/Actionbar; field -   fieldIdx - 248  dbPath -   tid - 1  accessId - 128
+
+Categorization of detected races
+--------------------------------
+
+Multithreaded races
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+class: Ljava/util/ArrayList;  field:16
+class: Lorg/tomdroid/ui/Actionbar;  field:248
+class: Lorg/tomdroid/util/NoteListCursorAdapter;  field:20
+class: Lorg/tomdroid/util/NoteListCursorAdapter;  field:24
+class: Lorg/tomdroid/util/NoteListCursorAdapter;  field:36
+
+Races due to co-enabled events
+
+object: 0x410df4a8  field:16 co-enabled trigger opIds:436, 140
+
+==========================================================================
+
+
+How to study event and message sequences, and thread interleaving of racey
+accesses in the given trace
+==========================================================================
+
+Consider a cross thread post asynchrnous race in the example abc_log.txt in 
+the folder sample-app. Details like rwId (read-write ID) of involved accesses,
+class names, object ID, field ID etc can be found in the end of abc_log.txt.
+We have copied the same here:
+
+RACE rwId1:7286 type - WRITE  obj - 0x41105448  class - Lorg/tomdroid/ui/Actionbar; field -   fieldIdx - 248  dbPath -   tid - 1  accessId - 87
+     rwId2:7809 type - WRITE  obj - 0x41105448  class - Lorg/tomdroid/ui/Actionbar; field -   fieldIdx - 248  dbPath -   tid - 1  accessId - 128
+
+rwId     - read-write ID for the access (search trace for the location of this operation 
+           in the sequence using this ID)
+type     - type of memory access (READ / WRITE)
+obj      - object id (memory location of the object). This is blank for static fields
+class    - fully qualified class name of the object
+field    - field name (can be obtained only for static fields in the current implementation)
+fieldIdx - offset of field
+dbPath   - database path if race is on database (ignore this as we dont report DB races)
+tid      - ID of the thread accessing the field
+accessId - operation ID in the trace associated with this access. As we describe in the
+           implementation section of the paper, we group a set of read writes into a 
+           single ACCESS operation. Only continuous read-writes (without any intermediate 
+           concurrency operation) performed by the same thread are grouped together.
+
+
+Hints to identify the code location and field name involved in race
+-------------------------------------------------------------------
+
+(hints are explained taking the above Tomdroid race as example)
+
+-> search the trace and goto the operation corresponding to rwId involved in the race. This
+   can be obtained from race witness. (E.g., 7286 and 7809 in the above race witness)
+
+-> If you know that the thread making the access has a message queue (E.g., main thread [tid:1])
+   then search for the async block ID within which the access is made. This can be done by
+   searching backwards for "CALL" operation performed by the same thread. 
+   In above e.g., 7286 is accessed inside msg:83 and 7809 accessed inside msg:86
+   
+   *If the thread has no message queue then search for the run() method within which the
+    access happened. 
+  
+-> Usually, the app method entered by the thread immediately after CALL operation is the 
+   high level asynchrnous block delimiter. Set breakpoint near this method entry so that
+   you can track if the race is reproduced with the same sequence of operations.
+   E.g., msg:83 corresponds to org.tomdroid.ui.ViewNote.handleMessage()
+         msg:86 corresponds to org.tomdroid.ui.SyncMessageHandler.handleMessage()
+
+-> Now try to find out the actual method and the location inside which the accesses 
+   happened. To do this find the "METHOD ENTRY" and its corresponding "METHOD EXIT"
+   delimiter of a method name inside which the access has happened. The exact location 
+   and thus the field name can be known by studying the path taken based on the 
+   methods accessed within the delimiters; and then reasoning about the number of
+   reads and writes performed before hitting the required access.
+   E.g., rwId: 7286 is accessed by method ViewGroup.invalidateChildInParent() and on line 4056.
+         rwId: 7809 is accessed by method View.invalidate() and on line 8554.
+
+   Set breakpoints at these points too. Sometimes its better to set the fine-grained breakpoints
+   after performing the necessary events and making sure that high level methods leading
+   to this access are hit. This is to avoid unneccessary hitting of breakpoint at wrong
+   places in the sequence, especially if its a highly accessed method. 
+
+-> To reproduce the exact race you need to know the sequence of messages and UI events or
+   intents that led to this race. For this, find the POST operation corresponding to the messages
+   that performed the accesses; then find its parent post and so on till you hit async block
+   corresponding to a lifecycle callback or UI event callback. If you hit a non message 
+   queue thread involved in this access, find the location where the thread got forked 
+   (search for FORK with child-tid being this thread) and then what event led to this fork.
+   Search for "TRIGGER-EVENT" operations that led to this access. These give information
+   about the UI events triggered. The "event" parameter of TRIGGER-EVENT specifies the kind
+   of event
+   E.g., 0 - click; 1 - long click; 2 - text input; 3 - BACK; 4 - MENU; 5 - ROTATE SCREEN;
+   12 - input a query and search  
+   (more on this can be found in frameworks/base/core/java/android/os/ModelCheckingDriver.java)
+
+   rwId: 7286 - a WRITE on field View.mPrivateFlags by ViewGroup.invalidateChildInParent() on line 4056.
+   This access happens inside async block of msg:83 which executes ViewNote.handleMessage() on
+   processing the message. msg:83 is posted by tid:10 from org.tomdroid.util.NoteContentBuilder.warnHandler().
+   warnHandler() is eventually called from NoteContentBuilder.run() executed by tid:10. 
+   tid:10 is forked from tid:1 inside org.tomdroid.util.NoteContentBuilder.build() called by
+   org.tomdroid.Note.getNoteContent(). This is called from org.tomdroid.ui.ViewNote.onCreate(). 
+   The async block where onCreate() is being called corresponds to lifecycle callback
+   due to launching of Activity ViewNote (check msg:49). 
+   332 CALL tid:1	 msg:49
+   333 TRIGGER-LIFECYCLE tid:1 component: id:-1 state:LAUNCH-ACT
+
+   Now, we track the cause of this Activity being launched. We find that it is due to CLICK event 
+   on a Tomdroid note. We obtained this by searching for the nearest prior event (TRIGGER-EVENT) 
+   that caused this. A systematic way of analysing this is to find where this LAUNCH-ACT got
+   enabled and then checking the event / an action on a component that caused this. In this
+   case it happens to be due to 
+   284 TRIGGER-EVENT tid:1 view:1090990440 event:0
+   We got a hint of the widget on which the click happened by analysing message posts due to
+   this event:
+   305 CALL tid:1	 msg:41
+   METHOD ENTRY tid:1	 meth:onListItemClick	 class:Lorg/tomdroid/ui/Tomdroid;  
+   
+   Hence, to reach access corresponding to rwId:7286 do the following:
+   (1) Open Tomdroid (after initializing it with a few notes) 
+   (2) Click OK if any popup window is displayed 
+   (3) Click on a Tomdroid Note
+   Before doing these, set breakpoints inside ViewNote.onCreate(), location where tid:10
+   is created and location where tid:10 makes the post corresponding to msg:83
+
+   
+   rwId: 7809 - a WRITE operation on field View.mPrivateFlags by View.invalidate() on line 8554.
+   This is accessed inside msg:86 which executes org.tomdroid.ui.SyncMessageHandler.handleMessage().
+   
+   This is posted by tid:11 from org.tomdroid.sync.SyncService.setSyncProgress(). This method is 
+   eventually called from org.tomdroid.sync.sd.SdCardSyncService$Worker.run(). The thread is spawned 
+   inside execThread() method of org.tomdroid.sync.SyncService clas. 
+   We observe that this sequence is hit on clicking on the SYNC button of Tomdroid.
+
+   To reproduce access rwId:7809 do the following:
+   (1) Open Tomdroid (after initializing it with a few notes) 
+   (2) Click OK if any popup window is displayed 
+   (3) Click on a Tomdroid Note
+   (4) Click on Sync button on top right corner
+   Before doing these, set breakpoints inside the methods mentioned in the above discussion, 
+   location where tid:11 is created and location where tid:11 makes the post corresponding to msg:86.
+
+*Apart from the above breakpoints set breakpoints at the actual locations where the accesses are made.
+
+To enforce an alternate ordering do the following:
+-> After clicking on Tomdroid Note various breakpoints get hit. Clear (resume) all of them except the
+   on corresponding to posting of msg:83.
+-> Then Click on the SYNC button and resume all breakpoints corresponding to this click inclusing
+   post corresponding to msg:86. Only after the execution of message corresponding to this post and
+   the rsulting access corresponding to rwId:7809, resume the thread that would do a post corresponding
+   to msg:83. Now observe if the access corresponding to rwId: 7268 happens or not.
+
+This race has been reproduced. But in case of some races alternate ordering may not be possible and
+we report the race to be false positive.
+
+
+** Note: In the above example of race, race has been reported on field 248 of class  
+Lorg/tomdroid/ui/Actionbar. But when we analysed we found the race to be on field mPrivateFlags
+of class View. This is the case as ActionBar extends RelativeLayout which extends ViewGroup
+which extends View class. Hence fields of parent classes are borrowed.  
+ 
+     
+ 
+
+ 
+ 
+
+
+
+
+

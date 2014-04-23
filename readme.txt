@@ -23,8 +23,12 @@ DroidRacer generated files for runs leading to the reported racey run
 for the app. The number in the file name corresponds to the test run
 number (1: first run, 2: second run and so on..)
 
+(3) abc_log.txt files have trace coresponding to the race detection run.
+The way to read this trace file has been explained with an example in
+how-to-read-trace.txt file in sample-app folder of this repository. Studying
+abc_log.txt file is important to reproduce the race.
 
-(3) To reproduce these runs, 
+(4) To reproduce these runs, 
 (i) clone droidRacer repository from https://bitbucket.org/hppulse/droidracer 
 (ii) Switch to the branch pldi-2014
 (iii) Build DroidRacer as per instructions given in readme-droidRacer.txt
@@ -41,7 +45,7 @@ so that app is not killed. ANR gets displayed as DroidRacer does file read-write
 from main thread in some places.
 
 
-(4) Only Tomdroid app source has been provided as a sample in sample-app folder.
+(5) Only Tomdroid app source has been provided as a sample in sample-app folder.
 For the other apps app-version-info.txt contains version of the app used for 
 procuring results for "Race Detection for Android Applications" paper.
 The corresponding version app may be downloaded from app's home page / Google Play /
