@@ -16,7 +16,8 @@ explanation in any of the tp-fp-analysis text file I might have
 written refer note-book page n ID m...I have not shifted these
 notes to txt file due to lack of time. If you need to check its 
 validity and are unable to reproduce a true-postive by following
-the trace, you could mail me for the same @ pallavi.maiya@csa.iisc.ernet.in
+the trace, you could mail me for the same 
+@ pallavi <dot> maiya <at> csa <dot> iisc <dot> ernet <dot> in
 
 (2) .db, .db-journal, pldi-log.txt and abc_log.txt files indicate the 
 DroidRacer generated files for runs leading to the reported racey run
@@ -50,4 +51,5 @@ For the other apps app-version-info.txt contains version of the app used for
 procuring results for "Race Detection for Android Applications" paper.
 The corresponding version app may be downloaded from app's home page / Google Play /
 some other apk or app code source on the internet. In case the appropriate version
-is not available the same can be requested by mailing to pallavi.maiya@csa.iisc.ernet.in
+is not available the same can be requested by mailing to 
+pallavi <dot> maiya <at> csa <dot> iisc <dot> ernet <dot> in
