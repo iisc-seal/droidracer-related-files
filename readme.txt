@@ -57,3 +57,11 @@ The corresponding version app may be downloaded from app's home page / Google Pl
 some other apk or app code source on the internet. In case the appropriate version
 is not available the same can be requested by mailing to 
 pallavi <dot> maiya <at> csa <dot> iisc <dot> ernet <dot> in
+
+
+--------------------------------------------------------------------------
+
+* Visit http://www.iisc-seal.net/droidracer to know more about DroidRacer.
+
+* For any further queries drop an e-mail to
+pallavi <dot> maiya <at> csa <dot> iisc <dot> ernet <dot> in
