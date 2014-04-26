@@ -1,3 +1,7 @@
+/*
+ * Author: Pallavi Maiya
+ */
+
 Each race detection run creates a trace file called abc_log.txt.
 
 The trace contains:

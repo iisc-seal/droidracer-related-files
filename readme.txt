@@ -1,3 +1,7 @@
+/*
+ * Author: Pallavi Maiya
+ */
+
 The files in this folder correspond to the testing runs
 by DroidRacer on the following apps done for the paper
 "Race Detection for Android Applications", PLDI 2014
