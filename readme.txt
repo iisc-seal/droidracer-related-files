@@ -1,5 +1,5 @@
 /*
- * Author: Pallavi Maiya
+ * @author Pallavi Maiya
  */
 
 The files in this folder correspond to the testing runs
