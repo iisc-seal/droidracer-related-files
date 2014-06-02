@@ -1,0 +1,23 @@
+Multithreaded races
+-------------------
+1. class: [I  field:2  (not reporting array access as not logged correctly)
+2. class: [I  field:4  (not reporting array access as not logged correctly)
+3. class: Lcom/google/android/apps/mytracks/content/MyTracksProvider;  field:2087
+   FALSE-POSITIVE: check page 23, research diary 4, problem id 4
+
+Async races (on single thread)
+
+Races due to a delayed post in ancestor asyncblocks
+
+Races due to cross thread post in ancestor asyncblocks
+1. class: Lcom/google/android/apps/mytracks/SearchListActivity$4;  field:36
+   TRUE-POSITIVE: check page 22, research diary 4, problem id 1. reproduced
+
+2. class: Lcom/google/android/apps/mytracks/SearchListActivity;  field:28
+   FALSE-POSITIVE: check page 22, research diary 4, problem id 2.
+   
+
+Races due to co-enabled events
+
+1. class: Lcom/google/android/apps/mytracks/SearchListActivity;  field:108 co-enabled trigger opIds:1004, 947
+   FALSE-PSOITIVE: application driven write racing with a read due to our logging code. need to fix this.
