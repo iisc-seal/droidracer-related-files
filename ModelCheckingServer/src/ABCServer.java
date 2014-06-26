@@ -62,7 +62,7 @@ public class ABCServer {
         DataInputStream dataInputStream = null;  
         DataOutputStream dataOutputStream = null;  
         int socketConnectionCount = 1;
-       	    
+       	HashMap<String, String> intentAppMap = new HashMap<String, String>();
 	    
 	intentAppMap.put("com.example.appreceivecall", "com.example.appreceivecall/.EntryActivity");
 	intentAppMap.put("com.android.mms", "com.android.mms/.ui.ConversationList");
