@@ -125,7 +125,7 @@ public class ABCServer {
 	                String input = dataInputStream.readUTF();
 	                String[] inputArr = input.split(":");
 	                
-	                String packagePath = ""; //dummy
+	                String packagePath = "-NA-"; //dummy
 	                String startIntent = intentAppMap.get(inputArr[1]);
 	                
 	                System.out.println(inputArr[0] + " " + inputArr[1] + " " +
