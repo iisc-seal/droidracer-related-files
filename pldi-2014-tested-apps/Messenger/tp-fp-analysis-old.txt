@@ -1,0 +1,172 @@
+Multithreaded races
+-------------------
+1. class: Lcom/android/mms/data/Contact;  field:28
+TRUE POSITIVE : 
+prior reason for FP: main thread adds a runnable to a developer implemented
+task queue and the other threads reads and executes the same runnable. Hence
+clear ordering but cant be captures by current implementation.
+
+*check 8007, 7999 in abc_log_new.txt ... this race was reproduced..but is benign
+ due to redundant logic of updating and reading..i could not completely understand 
+ the logic to exploit the race
+
+
+Races due to a delayed post in ancestor asyncblocks
+---------------------------------------------------
+1. class: Lcom/android/mms/ui/ComposeMessageActivity;  field:252   (field: mDebugRecipients) 
+   TRUE POSITIVE - happens due to delayed post after LAUNC-ACT of ComposeMessageActivity
+   and set text event on below textbox in compose screen. 
+   **This race was reproduced by increasing the post-delay to 20000 from 100 (line 2027
+   of ComposeMessageActivity.java) and setting appropriate breakpoints to observe this.
+   (ref. page 76 in hard bound research diary maintained after returning from MPI.
+   access - 7033, 8517
+
+   type: benign - this post seems like a redundant post as its functionality is already taken care-of by 
+   updateTitle() calls from onCreate() and onStart(). Also, even if delivered late than anticipated 
+   the code in the runnable posted takes care to update the title from recipient textbox if that is
+   visible and not update from stale content present during posting time.
+
+2. class: Lcom/android/mms/ui/RecipientsEditor;  field:420
+   FALSE POSITIVE - involves an untracked binder as source...better to classify as a FP
+
+
+Races due to cross thread post in ancestor asyncblocks
+------------------------------------------------------
+class: Landroid/widget/ImageButton;  field:360
+class: Landroid/widget/TextView;  field:360
+
+the above two come under this too but their main cause is co-enabled events and not cross post
+----------------------------------------------
+
+1. class: Lcom/android/mms/data/WorkingMessage;  field:12
+   FALSE POSITIVE
+When user enters the contact details of recipient, app tries to autofill/suggest the contacts. 
+This was done using seperate thread, not using Android's message queue and thus HB not established.
+
+2. class: Lcom/android/mms/data/WorkingMessage;  field:44 field-name: mMmsState accesses: 7796, 9990
+   FALSE POSITIVE : access 7796 is due to set-text on Recipients editor and access 9990 is due to clicking or 
+   setting text on text field to compose message. both these accesses are inside method 
+   WorkingMessage.updateState(). Its observed that updateState() is triggered when compose-message field is
+   clicked only if the contents of RecipientsEditor is updated. So logically this is not possible.
+
+3. class: Lcom/android/mms/ui/ComposeMessageActivity;  field:252
+   FALSE POSITIVE : developer own implementation of task queue
+   (Lcom/android/mms/data/Contact$ContactsCache$TaskStack;)
+
+4. class: Lcom/android/mms/ui/ComposeMessageActivity;  field:356
+   FALSE POSITIVE : developer own implementation of task queue   
+
+5. class: Lcom/android/mms/ui/ConversationListAdapter;  field:24 mCursor
+   TRUE POSITIVE : onQueryComplete of Lcom/android/mms/ui/ConversationList$ThreadListQueryHandler;
+        and onStop	 class:Lcom/android/mms/ui/ConversationList;
+	meth: swapCursor
+   access due to onQueryComple can be delayed by halting the post from other thread/AsyncQueryHandler->handleMessage(), 
+   and meanwhile access inside onStop can be executed by pressing back/home button.
+   
+   type: non-benign - mCursor field which is supposed to be null after onStop() could be non-null.
+   Also, there are some scenarios where runtime exception can be thrown due to async updating
+   of mCursor.
+
+6. class: Lcom/android/mms/ui/ConversationListAdapter;  field:36 mDataValid
+   TRUE POSITIVE : same reason as above
+   accesses: 3085, 7001
+   
+   type: non-benign : 3085 is the access due to LAUNCH-ACT that sets mDataValid to true and
+   is due to a message posted by AsyncQueryHandler. 7001 sets mDataValid to false on stopAct().
+   These both could get interchanged on a quick change of Activity before 3085 executes setting
+   mDataValid to true (rather than false, which is the expected state on onStop()). mDataValid
+   being true can be observed even on entry after clicking BACK button from the other activity.
+   java code lines: CursorAdapter.swapCursor() - 338, 343
+   
+
+7. class: Lcom/android/mms/ui/ConversationListAdapter;  field:44  mRowIDColumn
+   TRUE POSITIVE : same reason as above
+   
+   accesses: 3084, 7000
+   
+   type: non-benign : 3084 is the access due to LAUNCH-ACT that sets mRowIDColumn to 0 (first row in msg-list) and
+   is due to a message posted by AsyncQueryHandler. 7000 sets mRowIDColumn to -1 on stopAct().
+   These both could get interchanged on a quick change of Activity before 3084 executes setting
+   mRowIDColumn to 0 (rather than -1, which is the expected state on onStop()). mRowIDColumn
+   java code lines: CursorAdapter.swapCursor() - 339, 344
+   
+
+8. class: Lcom/android/mms/ui/RecipientsEditor$1;  field:8
+    FALSE POSITIVE : developer own implementation of task queue
+
+9. class: Lcom/android/mms/ui/RecipientsEditor;  field:248
+    FALSE POSITIVE : developer own implementation of task queue
+
+10. class: Lcom/android/mms/ui/RecipientsEditor;  field:420 (8908, 9354) (fieldName: mText)
+    TRUE POSITIVE : setText on RecipientEditor posts a message 90 to tid:13
+    which in turn posts a message to tid:1 and then tid:1 posts message to itself.
+    This eventually causes a getText leading to read. whereas the other access is 
+    due to post by a runnable on developer implemented queue to which runnable
+    is added due to setText on RecipientsEditor. 
+    we were able to reproduce this. to reach write due to 9354, trigger 1. click New-Message button
+    2. set-text on recipients editor field  3. click on message-content text field.
+    more details (where to set breakpoint etc.) to reproduce this on page. 75 in hard bound research diary
+    maintained after returning from MPI.
+
+   type: benign
+
+11. class: Lcom/android/mms/ui/RecipientsEditor;  field:520
+    FALSE POSITIVE : developer own implementation of task queue
+
+12. class: Lcom/android/mms/ui/RecipientsEditor;  field:580
+    FALSE POSITIVE : developer own implementation of task queue
+
+13. class: Lcom/android/mms/ui/RecipientsEditor;  field:720
+    FALSE POSITIVE : developer own implementation of task queue
+
+
+Races due to co-enabled events
+------------------------------
+1. class: Landroid/widget/ImageButton;  field:360 co-enabled trigger opIds:631, 700
+   TRUE POSITIVE : mViewFlags is accessed via setFlags() method. One of the
+   accesses is happening due to setText on Recipients editor. The other access
+   is due to call of onFocusChange() due to setting text on the textbox below
+   on compose message screen. This adds a task to developer implemented task queue
+   which in turn posts a message to main thread that causes setFlag. This is
+   true positive as the events themselves are not ordered but is a benign race.
+   accesses: 7917, 8755
+
+2. class: Landroid/widget/TextView;  field:60 co-enabled trigger opIds:631, 700
+   TRUE POSITIVE as setting text on recipients editor and the other textbox below
+   the screen is not ordred.
+   field: mDrawableState
+   type: seems benign, difficult to reason about (a library function used when updating UI <even on blinking>)
+
+3. class: Landroid/widget/TextView;  field:244 co-enabled trigger opIds:631, 700
+   TRUE POSITIVE : same reason as above
+   field: mLastIsOpaque
+   type: seems benign
+
+4. class: Landroid/widget/TextView;  field:248 co-enabled trigger opIds:631, 700
+   TRUE POSITIVE : same reason as above
+
+5. class: Landroid/widget/TextView;  field:360 co-enabled trigger opIds:631, 700
+   TRUE POSITIVE : same reason as above
+
+6. class: Landroid/widget/TextView;  field:608 co-enabled trigger opIds:631, 700
+   FALSE POSITIVE : unable to reproduce. accesses: 8234, 8853
+   both the accesses are inside TextView.prepareCursorControllers() method. Even though
+   indicated to hit both when setting text in RecipientsEditor and Compose-Message text field
+   hits only on focus change from RecipientsEditor to some other widget.
+
+7. class: Landroid/widget/TextView;  field:720 co-enabled trigger opIds:631, 700
+   FALSE POSITIVE : same reason as above
+
+8. class: Landroid/widget/TextView;  field:804 co-enabled trigger opIds:631, 700
+   TRUE POSITIVE : can be triggered by setting text on compose-message text field before doing so
+   on RecipientsEditor. and when typing type special chars (E.g. long press u, y etc)
+
+9. class: Lcom/android/mms/data/WorkingMessage;  field:24 co-enabled trigger opIds:631, 700 (field: mText)
+   TRUE POSITIVE : accessed inside hasText() and getText() of WorkingMessage. can be enforced in reverse order
+   just by reversing event sequence. 
+
+   type: benign. checking hasText() and getText() is part of the logic and does not cause any adverse effects
+
+10. class: Lcom/android/mms/data/WorkingMessage;  field:44 co-enabled trigger opIds:700, 631
+    FALSE POSITIVE : check reason of ID:2 under cross posts
+
