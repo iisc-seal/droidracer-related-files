@@ -1,0 +1,57 @@
+This document explains one of the covering races in SGTPuzzles application. The others are only briefly listed
+with info on the methods inside which the covering acceses happen. These methods and exact accesses can be
+tracked by looking into app code and by using the TP-FP-analysis file attached.
+
+
+(1) covering race: race on field SGTPuzzles.menu due to accesses inside (1) SGTPuzzles.onCreateOptionsMenu()
+executed by the main thread, and (2) SGTPuzzles.changedState(). The first access initializes menu field
+whereas second access checks if menu == NULL. Both these accesses can be found in SGTPuzzles.java.
+
+races covered:
+(a) race on field MenuItemImpl.mIconResId : accessed inside setEnabled method called from
+SGTPuzzles.onPrepareOptionsMenu() and setEnabled() called from runOnUiThread() posted by 
+SGTPuzzles.changedState(). Both these accesses are from different tasks of main thread and 
+can be found in MenuItemImpl.setEnabled(). Both are write operations. 
+
+But this race does not happen in opposite order as the null check on SGTPuzzles.menu field due to
+above covering race prevents the posting of the runOnUiThread() thus the second access cant happen.
+
+(b) race on field MenuItemImpl.mIconDrawable : same reason as above.
+
+(c) race on field MenuItemImpl.mFlags : accessed inside setChecked method called from 
+SGTPuzzles.onPrepareOptionsMenu(). The second access is from setCheckedInt() which is eventually 
+called from SGTPuzzles.handleMessage() method's DONE case. A null check on menu field is present here
+too preveinting the other ordering.
+The code for both stChecked() and setCheckedInt() is present in MenuItemImpl.java.
+
+----------------------------------------------------------------------------------
+
+(2) covering race field: name/boyle/chris/sgtpuzzles/SmallKeyboard;  field:716 field-name: SmallKeyboard.undoEnabled
+    rwId:1107 - tid:1 reads undoEnabled inside SmallKeyboard.onMeasure() in msg:7
+    rwId:1438 - tid:8 sets a value to undoEnabled in SmallKeyboard.setUndoRedoEnabled()
+
+    covered races:
+    (a) covered race field: com/android/internal/view/menu/MenuItemImpl;  field:24 field-name: MenuItemImpl.mTitle
+        rwId:2227   and rwId:9660   covered by covering race (2)
+
+    (b) covered race field: name/boyle/chris/sgtpuzzles/SGTPuzzles;  field:276 field-name: SGTPuzzles.hackForSubMenus
+        rwId:1768  and  rwId:9395  covered by covering race (2) which does a null check before executing code that makes 
+        the second rwId access 9395
+
+-----------------------------------------------------------------------------------
+
+(3) covering race field: name/boyle/chris/sgtpuzzles/SGTPuzzles;  field:340  field: SGTPuzzles.undoEnabled 
+    rwId:1430 - tid:8 sets redoEnabled to false inside SGTPuzzles.changedState() reached from 
+    SGTPuzzles.run() containing init() as the first statement. This is spawned from SGTPuzzles.startGame()
+    called from SGTPuzzles.onNewIntent() at the end of SGTPuzzles.onCreate().
+
+    rwId:1940 - read by tid:1 inside onPrepareOptionsMenu() of SGTPuzzles in tid:10...
+
+    covered races:
+    (a) covered race field: name/boyle/chris/sgtpuzzles/SGTPuzzles;  field:344 field-name: SGTPuzzles.resizeOnDone 
+        rwId:1353   and  rwId:2603  covered by covering race (3)
+
+  
+   
+
+
