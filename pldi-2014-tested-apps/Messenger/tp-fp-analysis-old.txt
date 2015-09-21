@@ -18,7 +18,7 @@ Races due to a delayed post in ancestor asyncblocks
    and set text event on below textbox in compose screen. 
    **This race was reproduced by increasing the post-delay to 20000 from 100 (line 2027
    of ComposeMessageActivity.java) and setting appropriate breakpoints to observe this.
-   (ref. page 76 in hard bound research diary maintained after returning from MPI.
+   (ref. page 76 in hard bound research diary)
    access - 7033, 8517
 
    type: benign - this post seems like a redundant post as its functionality is already taken care-of by 
