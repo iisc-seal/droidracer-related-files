@@ -1,6 +1,9 @@
-/*
- * @author Pallavi Maiya
- */
+LICENSE
+-------
+DroidRacer related files are available under the Apache License, version 2.0.
+Please see the LICENSE and NOTICE files for details.
+
+------------------------------------------------------------------------------
 
 The files in this folder correspond to the testing runs
 by DroidRacer on the following apps done for the paper
@@ -34,9 +37,9 @@ how-to-read-trace.txt file in sample-app folder of this repository. Studying
 abc_log.txt file is important to reproduce the race.
 
 (4) To reproduce these runs, 
-(i) clone droidRacer repository from https://bitbucket.org/hppulse/droidracer 
+(i) clone droidRacer repository from https://bitbucket.org/iiscseal/droidracer
 (ii) Switch to the branch pldi-2014
-(iii) Build DroidRacer as per instructions given in readme-droidRacer.txt
+(iii) Build DroidRacer as per instructions given in readme.txt
 (iv) Before running DroidRacer on each of the above apps do initializations 
 and follow instructions given in events-<n>.txt inside folder corresponding to
 each app.
@@ -62,6 +65,3 @@ pallavi <dot> maiya <at> csa <dot> iisc <dot> ernet <dot> in
 --------------------------------------------------------------------------
 
 * Visit http://www.iisc-seal.net/droidracer to know more about DroidRacer.
-
-* For any further queries drop an e-mail to
-pallavi <dot> maiya <at> csa <dot> iisc <dot> ernet <dot> in
